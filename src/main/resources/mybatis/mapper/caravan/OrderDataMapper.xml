@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.OrderDataMapper">
+    <select id="getOneInfoByPlatformOrderId"
+            resultType="com.weiziplus.springboot.models.OrderData">
+        SELECT *
+        FROM order_data
+        WHERE platformOrderId = #{platformOrderId}
+        LIMIT 1
+    </select>
+    <delete id="deleteOrderDataItemByOrderIds">
+        DELETE FROM order_data_item
+        WHERE order_id IN (
+        <foreach collection="orderIds" item="orderId" separator=",">
+            #{orderId}
+        </foreach>
+        )
+    </delete>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.logistics.LogisticsDeliveryMapper">
+    	<select id="getShopDeliveryDetailsPageList" parameterType="java.util.Map" resultType="java.util.Map">
+    			select * from v_shop_delivery_details  where  `status` in ( 2, 3 ) 
+    	</select>
+    	<select id="getTimeLinePageList" parameterType="java.util.Map" resultType="java.util.Map">
+    			select * from v_time_line 
+    	</select>
+    	<select id="getShippingLogisticsRecordPageList" parameterType="java.util.Map" resultType="java.util.Map">
+    		SELECT
+			`a`.`date` AS `date`,
+			`a`.`charge_logistics_number` AS `charge_logistics_number`,
+			`a`.`logistics_number` AS `logistics_number`,
+			`a`.`shipment_id` AS `shipment_id`,
+			`msd`.`shippName` as `shippName`,
+			`a`.`WMS_goods_number` AS `WMS_goods_number`,
+			`a`.`case_number` AS `case_number`,
+			`msd`.`shop` AS `shop`,
+			`a`.`estimated_logistics_mode` AS `estimated_logistics_mode`,
+			`a`.`practical_logistics_mode` AS `practical_logistics_mode`,
+			`a`.`code` AS `code`,
+			( SELECT sum( `msku_shippbatch_item_pack`.`delieverQuantity` ) FROM `msku_shippbatch_item_pack` WHERE ( CONVERT ( `msku_shippbatch_item_pack`.`packNo` USING utf8mb4 ) = `a`.`case_number` ) ) AS `shipmentNum`,
+			`a`.`actual_weight` AS `actual_weight`,
+			`a`.`long` AS `long`,
+			`a`.`width` AS `width`,
+			`a`.`height` AS `height`,
+			`a`.`volume_weight` AS `volume_weight`,
+			`a`.`amount_declared` AS `amount_declared`,
+			`a`.`estimated_tax` AS `estimated_tax`,
+			`a`.`other_expenses` AS `other_expenses`,
+			`a`.`expected_freight` AS `expected_freight` 
+		FROM
+			( `goods_correspondence_logistics_info` `a` LEFT JOIN `msku_shippbatch_data` `msd` ON ( ( CONVERT ( `msd`.`shippNo` USING utf8mb4 ) = `a`.`shipment_id` ) ) )
+    	</select>
+    	
+    	<select id="getClaimFollowUpPageList" parameterType="java.util.Map" resultType="java.util.Map">
+			SELECT
+				a.`shipmentid` AS `shipmentid`,
+				a.`shop` AS `shop`,
+				a.`area` AS `area`,
+				a.`msku` AS `msku`,
+				a.`applyQuantity` AS `applyQuantity`,
+				a.`delieverQuantity` AS `delieverQuantity`,
+				a.`circumstance` AS `circumstance`,
+				a.predictedDetectionTime,
+				( a.`applyQuantity` - a.`receiveNumber` ) AS `circumstanceNum`,
+				b.claim_progress_record,
+				b.extended_futures,
+				b.reason_delay,
+				b.estimated_delay_time,
+				b.claim_result 
+			FROM
+				`v_shop_delivery_details` a
+				LEFT JOIN claim_follow_up b ON
+				 a.shipmentid = b.shipment_id 
+				AND a.msku = b.msku 
+			WHERE
+				a.`circumstance` <![CDATA[=]]> '少入' 
+				AND ( to_days( curdate( ) ) - to_days( a.predictedDetectionTime ) ) <![CDATA[>]]> 7
+				<if test="shop != null and shop != ''">
+					and b.shop = #{shop} 
+				</if>
+				<if test="area != null and area != ''">
+					AND b.area = #{area} 
+				</if>
+				
+    </select>
+    
+    <select id="getClaimFollowUpByCondition" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.ClaimFollowUp">
+    		select * from claim_follow_up where shipment_id = #{shipmentId} and shop = #{shop} and area = #{area} and msku = #{msku}
+    </select>
+</mapper>

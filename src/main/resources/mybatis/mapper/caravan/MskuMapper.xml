@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.MskuMapper">
+    <delete id="deleteByDate">
+        DELETE FROM msku
+        WHERE date = #{date}
+    </delete>
+    <select id="getOneInfoByShopsAndMskuAndAmazonsite"
+            resultType="com.weiziplus.springboot.models.Msku">
+        SELECT *
+        FROM msku
+        WHERE msku = #{msku} AND amazonsite = #{amazonsite}
+        <choose>
+            <when test="null != shops">
+                AND shops = #{shops}
+            </when>
+            <otherwise>
+                AND shops IS NULL
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+</mapper>

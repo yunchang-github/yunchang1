@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.logistics.MskuShippbatchDataMapper">
+    <select id="getMskuShippbatchDataByShippNo" resultType="com.weiziplus.springboot.models.MskuShippbatchData">
+        SELECT *
+        FROM msku_shippbatch_data
+        WHERE shippNo = #{value}
+    </select>
+    <select id="getMskuShippbatchDataByDataIdAndSku" resultType="com.weiziplus.springboot.models.MskuShippbatchDataItem">
+        SELECT *
+        FROM msku_shippbatch_data_item
+        WHERE 1 =1 
+        <if test="cm.platformSku != null and cm.platformSku != ''">
+        	and platformSku = #{cm.platformSku}
+        </if>
+        <if test="cm.idData != null and cm.idData != ''">
+        	and msku_shippbatch_data_id = #{cm.idData}
+        </if>
+        <if test="cm.fbastockId != null and cm.fbastockId != ''">
+        	and msku_shippbatch_data_id = #{cm.fbastockId}
+        </if>
+    </select>
+    <select id="getMskuShippbatchPackByPackNo" resultType="com.weiziplus.springboot.models.MskuShippbatchPack">
+       select * from msku_shippbatch_pack where packNo = #{value}
+    </select>
+    
+     <select id="getMskuShippbatchDataBypackIdAndItemId" resultType="com.weiziplus.springboot.models.MskuShippbatchItemPack">
+       select * from msku_shippbatch_item_pack where 1 = 1
+       <if test="cm.packId != null and cm.packId != ''">
+       		and packId = #{cm.packId}
+       </if>
+       <if test=" cm.itemId != null and cm.itemId != ''">
+       		and itemId = #{cm.itemId}
+       </if> 
+    </select>
+    
+    <insert id="insert" parameterType="com.weiziplus.springboot.models.MskuShippbatchData" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    	insert into msku_shippbatch_data
+    	<trim prefix="(" suffix=")" suffixOverrides=",">
+    		<if test="id != null">
+    			id,
+    		</if>
+    		<if test="shop != null ">
+    			shop,
+    		</if>
+    		<if test="companyid != null">
+    			companyId,
+    		</if>
+    		<if test="shippno != null">
+    			shippNo,
+    		</if>
+    		<if test="shippname != null">
+    			shippName,
+    		</if>
+    		<if test="status != null">
+    			status,
+    		</if>
+    		<if test="warehouseid != null">
+    			warehouseId,
+    		</if>
+    		<if test="warehouse != null">
+    			warehouse,
+    		</if>
+    		<if test="countrycode != null">
+    			countryCode,
+    		</if>
+    		<if test="expresstime != null">
+    			expressTime,
+    		</if>
+    		<if test="timecreate != null">
+    			timeCreate,
+    		</if>
+    		<if test="timeupdate != null">
+    			timeUpdate,
+    		</if>
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides=",">
+    		<if test="id != null">
+    			#{id},
+    		</if>
+    		<if test="shop != null ">
+    			#{shop},
+    		</if>
+    		<if test="companyid != null">
+    			#{companyid},
+    		</if>
+    		<if test="shippno != null">
+    			#{shippno},
+    		</if>
+    		<if test="shippname != null">
+    			#{shippname},
+    		</if>
+    		<if test="status != null">
+    			#{status},
+    		</if>
+    		<if test="warehouseid != null">
+    			#{warehouseid},
+    		</if>
+    		<if test="warehouse != null">
+    			#{warehouse},
+    		</if>
+    		<if test="countrycode != null">
+    			#{countrycode},
+    		</if>
+    		<if test="expresstime != null">
+    			#{expresstime},
+    		</if>
+    		<if test="timecreate != null">
+    			#{timecreate},
+    		</if>
+    		<if test="timeupdate != null">
+    			#{timeupdate},
+    		</if>
+    	</trim>
+    </insert>
+    
+    <insert id="insertItem" parameterType="com.weiziplus.springboot.models.MskuShippbatchDataItem" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    		insert into `msku_shippbatch_data_item`
+    		<trim prefix="(" suffix=")" suffixOverrides=",">
+    			<if test="id != null ">
+    				id,
+    			</if>
+    			<if test="mskuShippbatchDataId != null">
+    				msku_shippbatch_data_id,
+    			</if>
+    			<if test="platformsku != null ">
+    				platformSku,
+    			</if>
+    			<if test="fbastockid != null">
+    				fbaStockId,
+    			</if>
+    			<if test="shippedquantity != null ">
+    				shippedQuantity,
+    			</if>
+    			<if test="receivedquantity != null ">
+    				receivedQuantity,
+    			</if>
+    			<if test="delieverquantity != null ">
+    				delieverQuantity,
+    			</if>
+    			<if test="applyquantity != null ">
+    				applyQuantity,
+    			</if>
+    		</trim>
+    		<trim prefix="values (" suffix=")" suffixOverrides=",">
+    			<if test="id != null ">
+    				#{id},
+    			</if>
+    			<if test="mskuShippbatchDataId != null">
+    				#{mskuShippbatchDataId},
+    			</if>
+    			<if test="platformsku != null ">
+    				#{platformsku},
+    			</if>
+    			<if test="fbastockid != null">
+    				#{fbastockid},
+    			</if>
+    			<if test="shippedquantity != null ">
+    				#{shippedquantity},
+    			</if>
+    			<if test="receivedquantity != null ">
+    				#{receivedquantity},
+    			</if>
+    			<if test="delieverquantity != null ">
+    				#{delieverquantity},
+    			</if>
+    			<if test="applyquantity != null ">
+    				#{applyquantity},
+    			</if>
+    		</trim>
+    </insert>
+    
+    <insert id="insertMskuShippbatchPack" parameterType="com.weiziplus.springboot.models.MskuShippbatchPack" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    	insert into `msku_shippbatch_pack`
+    	<trim prefix="(" suffix=")" suffixOverrides=",">
+    		<if test="id != null">
+    			id,
+    		</if>
+    		<if test="packno != null">
+    			packNo,
+    		</if>
+    		<if test="length != null">
+    			length,
+    		</if>
+    		<if test="width != null">
+    			width,
+    		</if>
+    		<if test="height != null">
+    			height,
+    		</if>
+    		<if test="weight != null">
+    			weight,
+    		</if>
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides=",">
+    		<if test="id != null">
+    			#{id},
+    		</if>
+    		<if test="packno != null">
+    			#{packno},
+    		</if>
+    		<if test="length != null">
+    			#{length},
+    		</if>
+    		<if test="width != null">
+    			#{width},
+    		</if>
+    		<if test="height != null">
+    			#{height},
+    		</if>
+    		<if test="weight != null">
+    			#{weight},
+    		</if>
+    	</trim>
+    </insert>
+    <insert id="insertMskuShippbatchItemPack" parameterType="com.weiziplus.springboot.models.MskuShippbatchItemPack" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    	insert into `msku_shippbatch_item_pack`
+    	<trim prefix="(" suffix=")" suffixOverrides=",">
+    		<if test="id != null ">
+    			id,
+    		</if>
+    		<if test="packid != null">
+    			packId,
+    		</if>
+    		<if test="itemid != null">
+    			itemId,
+    		</if>
+    		<if test="delieverquantity != null">
+    			delieverQuantity,
+    		</if>
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides=",">
+    		<if test="id != null ">
+    			#{id},
+    		</if>
+    		<if test="packid != null">
+    			#{packid},
+    		</if>
+    		<if test="itemid != null">
+    			#{itemid},
+    		</if>
+    		<if test="delieverquantity != null">
+    			#{delieverquantity},
+    		</if>
+    	</trim>
+    </insert>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.originalAdvertData.ErrorDateMapper">
+    <insert id="addErrorDate" parameterType="com.weiziplus.springboot.models.DO.ErrorDateDO">
+        insert into error_date(seller_id,area,error_date,`type`,status,create_time)
+        values
+        (#{sellerId,jdbcType=VARCHAR},#{area,jdbcType=VARCHAR},#{errorDate,jdbcType=VARCHAR},#{type,jdbcType=INTEGER},#{status,jdbcType=INTEGER},#{createTime,jdbcType=VARCHAR})
+    </insert>
+    <select id="selectAllErrorDateData" resultType="com.weiziplus.springboot.models.DO.ErrorDateDO">
+        select seller_id,area,error_date,`type`,status from error_date
+    </select>
+    <delete id="delErrorDate">
+        delete from error_date where
+        seller_id = #{errorDate.sellerId,jdbcType=VARCHAR} and area = #{errorDate.area,jdbcType=VARCHAR} and error_date = #{errorDate.errorDate,jdbcType=VARCHAR} and `type` = #{errorDate.type,jdbcType=INTEGER}
+    </delete>
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.AdvertOriginalDataMapper">
+    <select id="getDataCountFromOriginalProductAds" resultType="java.lang.Integer">
+        SELECT COUNT(`date`)
+        FROM original_data_adv_productads_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromOriginalCampaigns" resultType="java.lang.Integer">
+        SELECT COUNT(date) AS date
+        FROM original_data_adv_campaigns_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromOriginalAdGroups" resultType="java.lang.Integer">
+        SELECT COUNT(date) AS date
+        FROM original_data_adv_adgroups_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromOriginalTargets" resultType="java.lang.Integer">
+        SELECT COUNT(date) AS date
+        FROM original_data_adv_targets_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getDataCountFromOriginalKeywords" resultType="java.lang.Integer">
+        SELECT COUNT(date) AS date
+        FROM original_data_adv_keywords_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromOriginalAsins" resultType="java.lang.Integer">
+        SELECT COUNT(date) AS date
+        FROM original_data_adv_asins_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteDataFromAdGroupsByShopAreaDate">
+        delete from original_data_adv_adgroups_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteDataFromTargetsByShopAreaDate">
+        delete from original_data_adv_targets_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteDataFromKeywordsByShopAreaDate">
+        delete from original_data_adv_keywords_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteDataFromProductAdsByShopAreaDate">
+        delete from original_data_adv_productads_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteDataFromCampaignsByShopAreaDate">
+        delete from original_data_adv_campaigns_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteDataFromAsinsByShopAreaDate">
+        delete from original_data_adv_asins_report
+        <where>
+            <if test="shop != null and shop != ''">
+                and shop = #{shop,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+</mapper>

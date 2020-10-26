@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sqlTable.SqlTableMapper">
+
+    <delete id="delSkuAsinPsku">
+        delete from sku_asin_psku
+    </delete>
+    <insert id="insertSkuAsinPsku">
+        <!--        添加sku_asin_psku-->
+        insert into sku_asin_psku(csku,casin,psku,shop,area)
+        SELECT
+        temp.sku,
+        temp.asin,
+        IFNULL(mpcp.parent_sku, temp.sku) AS psku,
+        temp.shop,
+        temp.area
+        FROM
+        (
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com" and area = "US"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.ca" and area = "CA"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com.mx" and area = "MX"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.co.uk" and area = "GB"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.de" and area = "DE"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.es" and area = "ES"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.fr" and area = "FR"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.it" and area = "IT"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.co.jp" and area = "JP"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com.au" and area = "AU"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area)
+        UNION
+        (SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        manage_fba_inventory
+        WHERE
+        (afn_warehouse_quantity + afn_inbound_working_quantity + afn_inbound_shipped_quantity +
+        afn_inbound_receiving_quantity)>0
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area)
+        ) temp
+        LEFT JOIN msku_parentsku_childrenasin_parentasin mpcp ON temp.sku = mpcp.msku
+        AND temp.shop = mpcp.shop
+        AND temp.area = mpcp.area
+        GROUP BY
+        temp.sku,
+        temp.asin,
+        temp.shop,
+        temp.area;
+    </insert>
+    <delete id="delLatestManageFbaInventory">
+        delete from latest_manage_fba_inventory
+    </delete>
+    <insert id="insertLatestManageFbaInventory">
+        insert into latest_manage_fba_inventory
+        SELECT
+        mfi.sku,
+        mfi.asin,
+        mfi.shop,
+        mfi.area,
+        mfi.afn_fulfillable_quantity,
+        mfi.afn_inbound_shipped_quantity,
+        mfi.afn_inbound_receiving_quantity,
+        mfi.afn_unsellable_quantity,
+        mfi.create_time
+        FROM
+        manage_fba_inventory mfi,
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area,
+        MAX(create_time) AS tt
+        FROM
+        manage_fba_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        AND `condition` = "New"
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        ) tim
+        WHERE
+        mfi.sku = tim.sku
+        AND mfi.asin = tim.asin
+        AND mfi.shop = tim.shop
+        AND mfi.area = tim.area
+        AND mfi.create_time = tim.tt
+        GROUP BY
+        mfi.sku,
+        mfi.asin,
+        mfi.shop,
+        mfi.area
+    </insert>
+    <delete id="delLatestReservedInventory">
+        delete from latest_reserved_inventory
+    </delete>
+    <insert id="insertLatestReservedInventory">
+        insert into latest_reserved_inventory
+        SELECT
+        ri.sku,
+        ri.asin,
+        ri.shop,
+        ri.area,
+        ri.reserved_fc_transfers,
+        ri.create_time
+        FROM
+        reserved_inventory ri,
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area,
+        reserved_fc_transfers,
+        MAX(create_time) tt
+        FROM
+        reserved_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area) tim
+        WHERE
+        ri.sku = tim.sku
+        AND ri.asin = tim.asin
+        AND ri.shop = tim.shop
+        AND ri.area = tim.area
+        AND ri.create_time = tim.tt
+        GROUP BY
+        ri.sku,
+        ri.asin,
+        ri.shop,
+        ri.area
+    </insert>
+    <delete id="delLatestInventoryAge">
+        delete from latest_inventory_age
+    </delete>
+    <insert id="insertLatestInventoryAge">
+        insert into latest_inventory_age
+        SELECT
+        ia.sku,
+        ia.asin,
+        ia.shop,
+        ia.area,
+        ia.inv_age_91_to_180_days,
+        ia.inv_age_181_to_270_days,
+        ia.inv_age_271_to_365_days,
+        ia.inv_age_365_plus_days,
+        ia.creat_time
+        FROM
+        inventory_age ia,
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area,
+        MAX(creat_time) tt
+        FROM
+        inventory_age
+        WHERE
+        <![CDATA[creat_time < (CURRENT_DATE() + 1)]]>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area) tim
+        WHERE
+        ia.sku = tim.sku
+        AND ia.asin = tim.asin
+        AND ia.shop = tim.shop
+        AND ia.area = tim.area
+        AND ia.creat_time = tim.tt
+        GROUP BY
+        ia.sku,
+        ia.asin,
+        ia.shop,
+        ia.area
+    </insert>
+    <delete id="delDetailPageSalesAndTrafficErrorDate">
+        delete from detail_page_sales_and_traffic_error_date
+    </delete>
+    <insert id="insertDetailPageSalesAndTrafficErrorDate">
+        insert into detail_page_sales_and_traffic_error_date(shop,seller_id,area,error_date,`table_name`)
+SELECT
+	#{shop,jdbcType=VARCHAR} as shop,
+#{sellerId,jdbcType=VARCHAR} as seller_id,
+#{area,jdbcType=VARCHAR} as country_code,
+a.Date as error_date,
+#{tableName,jdbcType=VARCHAR} as `table_name`
+FROM
+	(
+		select curdate() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY as Date
+    from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+    cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+    cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+	) a
+WHERE
+	a.Date BETWEEN DATE_SUB(NOW(),INTERVAL 2 MONTH)
+AND NOW()
+and a.Date not in (SELECT
+	`date`
+FROM
+	${tableName}
+WHERE
+	seller_id = "B1ZJMOIOPN94:D"
+AND country_code = "US"
+GROUP BY
+	`date`) ORDER BY a.Date
+    </insert>
+    <delete id="delLatestSumQuantity">
+        DELETE from latest_sum_quantity
+    </delete>
+    <insert id="insertLatestSumQuantity">
+        insert into latest_sum_quantity(sku,asin,shop,area,sum_quantity,latest_week,create_time)
+        -- 美国
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+        #{latestWeek} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com" and area = "US"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 加拿大
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+         #{latestWeek} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.ca" and area = "CA"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 墨西哥
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+         #{latestWeek} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com.mx" and area = "MX"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 英国
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+         #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.co.uk" and area = "GB"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 德国
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+         #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.de" and area = "DE"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 西班牙
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+        #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.es" and area = "es"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 法国
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+         #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.fr" and area = "FR"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 意大利
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+        #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.it" and area = "IT"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 日本
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+        #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.co.jp" and area = "JP"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        UNION
+        -- 澳大利亚
+        SELECT
+        sku as sku,
+        asin as asin,
+        shop as shop,
+        area as area,
+        SUM(quantity) as sum_quantity,
+        #{latestWeek,jdbcType=VARCHAR} as latest_week,
+        #{createTime,jdbcType=VARCHAR} as create_time
+        FROM
+        all_order
+        WHERE
+        sales_channel = "Amazon.com.au" and area = "AU"
+        <if test="latestWeek == 1">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 0 DAY)]]>
+        </if>
+        <if test="latestWeek == 2">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 14 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)]]>
+        </if>
+        <if test="latestWeek == 3">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 21 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 14 DAY)]]>
+        </if>
+        <if test="latestWeek == 4">
+            <![CDATA[and DATE_SUB(CURDATE(), INTERVAL 28 DAY) <= purchase_date]]>
+            <![CDATA[and purchase_date < DATE_SUB(CURDATE(), INTERVAL 21 DAY)]]>
+        </if>
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+    </insert>
+</mapper>

@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiziplus.springboot.mapper.originalAdvertData.OriginalDataAdvCampaignsReportMapper">
+    <resultMap id="BaseResultMap" type="com.weiziplus.springboot.models.OriginalDataAdvCampaignsReport">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="shop" property="shop" jdbcType="VARCHAR"/>
+        <result column="area" property="area" jdbcType="VARCHAR"/>
+        <result column="placement" property="placement" jdbcType="VARCHAR"/>
+        <result column="bid_plus" property="bidPlus" jdbcType="TINYINT"/>
+        <result column="campaign_name" property="campaignName" jdbcType="VARCHAR"/>
+        <result column="campaign_id" property="campaignId" jdbcType="BIGINT"/>
+        <result column="campaign_status" property="campaignStatus" jdbcType="VARCHAR"/>
+        <result column="campaign_budget" property="campaignBudget" jdbcType="INTEGER"/>
+        <result column="impressions" property="impressions" jdbcType="INTEGER"/>
+        <result column="clicks" property="clicks" jdbcType="INTEGER"/>
+        <result column="cost" property="cost" jdbcType="DECIMAL"/>
+        <result column="attributed_conversions1d" property="attributedConversions1d" jdbcType="INTEGER"/>
+        <result column="attributed_conversions7d" property="attributedConversions7d" jdbcType="INTEGER"/>
+        <result column="attributed_conversions14d" property="attributedConversions14d" jdbcType="INTEGER"/>
+        <result column="attributed_conversions30d" property="attributedConversions30d" jdbcType="INTEGER"/>
+        <result column="attributed_conversions1d_same_SKU" property="attributedConversions1dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_conversions7d_same_SKU" property="attributedConversions7dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_conversions14d_same_SKU" property="attributedConversions14dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_conversions30d_same_SKU" property="attributedConversions30dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered1d" property="attributedUnitsOrdered1d" jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered7d" property="attributedUnitsOrdered7d" jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered14d" property="attributedUnitsOrdered14d" jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered30d" property="attributedUnitsOrdered30d" jdbcType="INTEGER"/>
+        <result column="attributed_sales1d" property="attributedSales1d" jdbcType="DECIMAL"/>
+        <result column="attributed_sales7d" property="attributedSales7d" jdbcType="DECIMAL"/>
+        <result column="attributed_sales14d" property="attributedSales14d" jdbcType="DECIMAL"/>
+        <result column="attributed_sales30d" property="attributedSales30d" jdbcType="DECIMAL"/>
+        <result column="attributed_sales1d_same_SKU" property="attributedSales1dSameSku" jdbcType="DECIMAL"/>
+        <result column="attributed_sales7d_same_SKU" property="attributedSales7dSameSku" jdbcType="DECIMAL"/>
+        <result column="attributed_sales14d_same_SKU" property="attributedSales14dSameSku" jdbcType="DECIMAL"/>
+        <result column="attributed_sales30d_same_SKU" property="attributedSales30dSameSku" jdbcType="DECIMAL"/>
+        <result column="attributed_units_ordered1d_same_SKU" property="attributedUnitsOrdered1dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered7d_same_SKU" property="attributedUnitsOrdered7dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered14d_same_SKU" property="attributedUnitsOrdered14dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="attributed_units_ordered30d_same_SKU" property="attributedUnitsOrdered30dSameSku"
+                jdbcType="INTEGER"/>
+        <result column="date" property="date" jdbcType="DATE"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, shop, area, placement, bid_plus, campaign_name, campaign_id, campaign_status, 
+    campaign_budget, impressions, clicks, cost, attributed_conversions1d, attributed_conversions7d, 
+    attributed_conversions14d, attributed_conversions30d, attributed_conversions1d_same_SKU, 
+    attributed_conversions7d_same_SKU, attributed_conversions14d_same_SKU, attributed_conversions30d_same_SKU, 
+    attributed_units_ordered1d, attributed_units_ordered7d, attributed_units_ordered14d, 
+    attributed_units_ordered30d, attributed_sales1d, attributed_sales7d, attributed_sales14d, 
+    attributed_sales30d, attributed_sales1d_same_SKU, attributed_sales7d_same_SKU, attributed_sales14d_same_SKU, 
+    attributed_sales30d_same_SKU, attributed_units_ordered1d_same_SKU, attributed_units_ordered7d_same_SKU, 
+    attributed_units_ordered14d_same_SKU, attributed_units_ordered30d_same_SKU, date, 
+    create_time
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from original_data_adv_campaigns_report
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from original_data_adv_campaigns_report
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.weiziplus.springboot.models.OriginalDataAdvCampaignsReport">
+    insert into original_data_adv_campaigns_report (id, shop, area, 
+      placement, bid_plus, campaign_name, 
+      campaign_id, campaign_status, campaign_budget, 
+      impressions, clicks, cost, 
+      attributed_conversions1d, attributed_conversions7d, 
+      attributed_conversions14d, attributed_conversions30d, 
+      attributed_conversions1d_same_SKU, attributed_conversions7d_same_SKU, 
+      attributed_conversions14d_same_SKU, attributed_conversions30d_same_SKU, 
+      attributed_units_ordered1d, attributed_units_ordered7d, 
+      attributed_units_ordered14d, attributed_units_ordered30d, 
+      attributed_sales1d, attributed_sales7d, attributed_sales14d, 
+      attributed_sales30d, attributed_sales1d_same_SKU, 
+      attributed_sales7d_same_SKU, attributed_sales14d_same_SKU, 
+      attributed_sales30d_same_SKU, attributed_units_ordered1d_same_SKU, 
+      attributed_units_ordered7d_same_SKU, attributed_units_ordered14d_same_SKU, 
+      attributed_units_ordered30d_same_SKU, date, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{shop,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{placement,jdbcType=VARCHAR}, #{bidPlus,jdbcType=TINYINT}, #{campaignName,jdbcType=VARCHAR}, 
+      #{campaignId,jdbcType=BIGINT}, #{campaignStatus,jdbcType=VARCHAR}, #{campaignBudget,jdbcType=INTEGER}, 
+      #{impressions,jdbcType=INTEGER}, #{clicks,jdbcType=INTEGER}, #{cost,jdbcType=DECIMAL}, 
+      #{attributedConversions1d,jdbcType=INTEGER}, #{attributedConversions7d,jdbcType=INTEGER}, 
+      #{attributedConversions14d,jdbcType=INTEGER}, #{attributedConversions30d,jdbcType=INTEGER}, 
+      #{attributedConversions1dSameSku,jdbcType=INTEGER}, #{attributedConversions7dSameSku,jdbcType=INTEGER}, 
+      #{attributedConversions14dSameSku,jdbcType=INTEGER}, #{attributedConversions30dSameSku,jdbcType=INTEGER}, 
+      #{attributedUnitsOrdered1d,jdbcType=INTEGER}, #{attributedUnitsOrdered7d,jdbcType=INTEGER}, 
+      #{attributedUnitsOrdered14d,jdbcType=INTEGER}, #{attributedUnitsOrdered30d,jdbcType=INTEGER}, 
+      #{attributedSales1d,jdbcType=DECIMAL}, #{attributedSales7d,jdbcType=DECIMAL}, #{attributedSales14d,jdbcType=DECIMAL}, 
+      #{attributedSales30d,jdbcType=DECIMAL}, #{attributedSales1dSameSku,jdbcType=DECIMAL}, 
+      #{attributedSales7dSameSku,jdbcType=DECIMAL}, #{attributedSales14dSameSku,jdbcType=DECIMAL}, 
+      #{attributedSales30dSameSku,jdbcType=DECIMAL}, #{attributedUnitsOrdered1dSameSku,jdbcType=INTEGER}, 
+      #{attributedUnitsOrdered7dSameSku,jdbcType=INTEGER}, #{attributedUnitsOrdered14dSameSku,jdbcType=INTEGER}, 
+      #{attributedUnitsOrdered30dSameSku,jdbcType=INTEGER}, #{date,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.weiziplus.springboot.models.OriginalDataAdvCampaignsReport">
+        insert into original_data_adv_campaigns_report
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="shop != null">
+                shop,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="placement != null">
+                placement,
+            </if>
+            <if test="bidPlus != null">
+                bid_plus,
+            </if>
+            <if test="campaignName != null">
+                campaign_name,
+            </if>
+            <if test="campaignId != null">
+                campaign_id,
+            </if>
+            <if test="campaignStatus != null">
+                campaign_status,
+            </if>
+            <if test="campaignBudget != null">
+                campaign_budget,
+            </if>
+            <if test="impressions != null">
+                impressions,
+            </if>
+            <if test="clicks != null">
+                clicks,
+            </if>
+            <if test="cost != null">
+                cost,
+            </if>
+            <if test="attributedConversions1d != null">
+                attributed_conversions1d,
+            </if>
+            <if test="attributedConversions7d != null">
+                attributed_conversions7d,
+            </if>
+            <if test="attributedConversions14d != null">
+                attributed_conversions14d,
+            </if>
+            <if test="attributedConversions30d != null">
+                attributed_conversions30d,
+            </if>
+            <if test="attributedConversions1dSameSku != null">
+                attributed_conversions1d_same_SKU,
+            </if>
+            <if test="attributedConversions7dSameSku != null">
+                attributed_conversions7d_same_SKU,
+            </if>
+            <if test="attributedConversions14dSameSku != null">
+                attributed_conversions14d_same_SKU,
+            </if>
+            <if test="attributedConversions30dSameSku != null">
+                attributed_conversions30d_same_SKU,
+            </if>
+            <if test="attributedUnitsOrdered1d != null">
+                attributed_units_ordered1d,
+            </if>
+            <if test="attributedUnitsOrdered7d != null">
+                attributed_units_ordered7d,
+            </if>
+            <if test="attributedUnitsOrdered14d != null">
+                attributed_units_ordered14d,
+            </if>
+            <if test="attributedUnitsOrdered30d != null">
+                attributed_units_ordered30d,
+            </if>
+            <if test="attributedSales1d != null">
+                attributed_sales1d,
+            </if>
+            <if test="attributedSales7d != null">
+                attributed_sales7d,
+            </if>
+            <if test="attributedSales14d != null">
+                attributed_sales14d,
+            </if>
+            <if test="attributedSales30d != null">
+                attributed_sales30d,
+            </if>
+            <if test="attributedSales1dSameSku != null">
+                attributed_sales1d_same_SKU,
+            </if>
+            <if test="attributedSales7dSameSku != null">
+                attributed_sales7d_same_SKU,
+            </if>
+            <if test="attributedSales14dSameSku != null">
+                attributed_sales14d_same_SKU,
+            </if>
+            <if test="attributedSales30dSameSku != null">
+                attributed_sales30d_same_SKU,
+            </if>
+            <if test="attributedUnitsOrdered1dSameSku != null">
+                attributed_units_ordered1d_same_SKU,
+            </if>
+            <if test="attributedUnitsOrdered7dSameSku != null">
+                attributed_units_ordered7d_same_SKU,
+            </if>
+            <if test="attributedUnitsOrdered14dSameSku != null">
+                attributed_units_ordered14d_same_SKU,
+            </if>
+            <if test="attributedUnitsOrdered30dSameSku != null">
+                attributed_units_ordered30d_same_SKU,
+            </if>
+            <if test="date != null">
+                date,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="shop != null">
+                #{shop,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="placement != null">
+                #{placement,jdbcType=VARCHAR},
+            </if>
+            <if test="bidPlus != null">
+                #{bidPlus,jdbcType=TINYINT},
+            </if>
+            <if test="campaignName != null">
+                #{campaignName,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignId != null">
+                #{campaignId,jdbcType=BIGINT},
+            </if>
+            <if test="campaignStatus != null">
+                #{campaignStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignBudget != null">
+                #{campaignBudget,jdbcType=INTEGER},
+            </if>
+            <if test="impressions != null">
+                #{impressions,jdbcType=INTEGER},
+            </if>
+            <if test="clicks != null">
+                #{clicks,jdbcType=INTEGER},
+            </if>
+            <if test="cost != null">
+                #{cost,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedConversions1d != null">
+                #{attributedConversions1d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions7d != null">
+                #{attributedConversions7d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions14d != null">
+                #{attributedConversions14d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions30d != null">
+                #{attributedConversions30d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions1dSameSku != null">
+                #{attributedConversions1dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions7dSameSku != null">
+                #{attributedConversions7dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions14dSameSku != null">
+                #{attributedConversions14dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions30dSameSku != null">
+                #{attributedConversions30dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered1d != null">
+                #{attributedUnitsOrdered1d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered7d != null">
+                #{attributedUnitsOrdered7d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered14d != null">
+                #{attributedUnitsOrdered14d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered30d != null">
+                #{attributedUnitsOrdered30d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedSales1d != null">
+                #{attributedSales1d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales7d != null">
+                #{attributedSales7d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales14d != null">
+                #{attributedSales14d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales30d != null">
+                #{attributedSales30d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales1dSameSku != null">
+                #{attributedSales1dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales7dSameSku != null">
+                #{attributedSales7dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales14dSameSku != null">
+                #{attributedSales14dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales30dSameSku != null">
+                #{attributedSales30dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedUnitsOrdered1dSameSku != null">
+                #{attributedUnitsOrdered1dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered7dSameSku != null">
+                #{attributedUnitsOrdered7dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered14dSameSku != null">
+                #{attributedUnitsOrdered14dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered30dSameSku != null">
+                #{attributedUnitsOrdered30dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="date != null">
+                #{date,jdbcType=DATE},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.weiziplus.springboot.models.OriginalDataAdvCampaignsReport">
+        update original_data_adv_campaigns_report
+        <set>
+            <if test="shop != null">
+                shop = #{shop,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="placement != null">
+                placement = #{placement,jdbcType=VARCHAR},
+            </if>
+            <if test="bidPlus != null">
+                bid_plus = #{bidPlus,jdbcType=TINYINT},
+            </if>
+            <if test="campaignName != null">
+                campaign_name = #{campaignName,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignId != null">
+                campaign_id = #{campaignId,jdbcType=BIGINT},
+            </if>
+            <if test="campaignStatus != null">
+                campaign_status = #{campaignStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="campaignBudget != null">
+                campaign_budget = #{campaignBudget,jdbcType=INTEGER},
+            </if>
+            <if test="impressions != null">
+                impressions = #{impressions,jdbcType=INTEGER},
+            </if>
+            <if test="clicks != null">
+                clicks = #{clicks,jdbcType=INTEGER},
+            </if>
+            <if test="cost != null">
+                cost = #{cost,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedConversions1d != null">
+                attributed_conversions1d = #{attributedConversions1d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions7d != null">
+                attributed_conversions7d = #{attributedConversions7d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions14d != null">
+                attributed_conversions14d = #{attributedConversions14d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions30d != null">
+                attributed_conversions30d = #{attributedConversions30d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions1dSameSku != null">
+                attributed_conversions1d_same_SKU = #{attributedConversions1dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions7dSameSku != null">
+                attributed_conversions7d_same_SKU = #{attributedConversions7dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions14dSameSku != null">
+                attributed_conversions14d_same_SKU = #{attributedConversions14dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedConversions30dSameSku != null">
+                attributed_conversions30d_same_SKU = #{attributedConversions30dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered1d != null">
+                attributed_units_ordered1d = #{attributedUnitsOrdered1d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered7d != null">
+                attributed_units_ordered7d = #{attributedUnitsOrdered7d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered14d != null">
+                attributed_units_ordered14d = #{attributedUnitsOrdered14d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered30d != null">
+                attributed_units_ordered30d = #{attributedUnitsOrdered30d,jdbcType=INTEGER},
+            </if>
+            <if test="attributedSales1d != null">
+                attributed_sales1d = #{attributedSales1d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales7d != null">
+                attributed_sales7d = #{attributedSales7d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales14d != null">
+                attributed_sales14d = #{attributedSales14d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales30d != null">
+                attributed_sales30d = #{attributedSales30d,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales1dSameSku != null">
+                attributed_sales1d_same_SKU = #{attributedSales1dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales7dSameSku != null">
+                attributed_sales7d_same_SKU = #{attributedSales7dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales14dSameSku != null">
+                attributed_sales14d_same_SKU = #{attributedSales14dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedSales30dSameSku != null">
+                attributed_sales30d_same_SKU = #{attributedSales30dSameSku,jdbcType=DECIMAL},
+            </if>
+            <if test="attributedUnitsOrdered1dSameSku != null">
+                attributed_units_ordered1d_same_SKU = #{attributedUnitsOrdered1dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered7dSameSku != null">
+                attributed_units_ordered7d_same_SKU = #{attributedUnitsOrdered7dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered14dSameSku != null">
+                attributed_units_ordered14d_same_SKU = #{attributedUnitsOrdered14dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="attributedUnitsOrdered30dSameSku != null">
+                attributed_units_ordered30d_same_SKU = #{attributedUnitsOrdered30dSameSku,jdbcType=INTEGER},
+            </if>
+            <if test="date != null">
+                date = #{date,jdbcType=DATE},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.weiziplus.springboot.models.OriginalDataAdvCampaignsReport">
+    update original_data_adv_campaigns_report
+    set shop = #{shop,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      placement = #{placement,jdbcType=VARCHAR},
+      bid_plus = #{bidPlus,jdbcType=TINYINT},
+      campaign_name = #{campaignName,jdbcType=VARCHAR},
+      campaign_id = #{campaignId,jdbcType=BIGINT},
+      campaign_status = #{campaignStatus,jdbcType=VARCHAR},
+      campaign_budget = #{campaignBudget,jdbcType=INTEGER},
+      impressions = #{impressions,jdbcType=INTEGER},
+      clicks = #{clicks,jdbcType=INTEGER},
+      cost = #{cost,jdbcType=DECIMAL},
+      attributed_conversions1d = #{attributedConversions1d,jdbcType=INTEGER},
+      attributed_conversions7d = #{attributedConversions7d,jdbcType=INTEGER},
+      attributed_conversions14d = #{attributedConversions14d,jdbcType=INTEGER},
+      attributed_conversions30d = #{attributedConversions30d,jdbcType=INTEGER},
+      attributed_conversions1d_same_SKU = #{attributedConversions1dSameSku,jdbcType=INTEGER},
+      attributed_conversions7d_same_SKU = #{attributedConversions7dSameSku,jdbcType=INTEGER},
+      attributed_conversions14d_same_SKU = #{attributedConversions14dSameSku,jdbcType=INTEGER},
+      attributed_conversions30d_same_SKU = #{attributedConversions30dSameSku,jdbcType=INTEGER},
+      attributed_units_ordered1d = #{attributedUnitsOrdered1d,jdbcType=INTEGER},
+      attributed_units_ordered7d = #{attributedUnitsOrdered7d,jdbcType=INTEGER},
+      attributed_units_ordered14d = #{attributedUnitsOrdered14d,jdbcType=INTEGER},
+      attributed_units_ordered30d = #{attributedUnitsOrdered30d,jdbcType=INTEGER},
+      attributed_sales1d = #{attributedSales1d,jdbcType=DECIMAL},
+      attributed_sales7d = #{attributedSales7d,jdbcType=DECIMAL},
+      attributed_sales14d = #{attributedSales14d,jdbcType=DECIMAL},
+      attributed_sales30d = #{attributedSales30d,jdbcType=DECIMAL},
+      attributed_sales1d_same_SKU = #{attributedSales1dSameSku,jdbcType=DECIMAL},
+      attributed_sales7d_same_SKU = #{attributedSales7dSameSku,jdbcType=DECIMAL},
+      attributed_sales14d_same_SKU = #{attributedSales14dSameSku,jdbcType=DECIMAL},
+      attributed_sales30d_same_SKU = #{attributedSales30dSameSku,jdbcType=DECIMAL},
+      attributed_units_ordered1d_same_SKU = #{attributedUnitsOrdered1dSameSku,jdbcType=INTEGER},
+      attributed_units_ordered7d_same_SKU = #{attributedUnitsOrdered7dSameSku,jdbcType=INTEGER},
+      attributed_units_ordered14d_same_SKU = #{attributedUnitsOrdered14dSameSku,jdbcType=INTEGER},
+      attributed_units_ordered30d_same_SKU = #{attributedUnitsOrdered30dSameSku,jdbcType=INTEGER},
+      date = #{date,jdbcType=DATE},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getClicksSumByDate" resultType="Integer">
+    select SUM(clicks)
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+  </select>
+    <select id="getLatestClicksSum" resultType="Integer">
+        select SUM(clicks)
+        from original_data_adv_campaigns_report
+        where shop = #{shop} and <![CDATA[area = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date`< CURDATE();]]>
+    </select>
+    <select id="getLatestImpressionsSum" resultType="Integer">
+        select SUM(impressions)
+        from original_data_adv_campaigns_report
+        where shop = #{shop} and <![CDATA[area = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date`< CURDATE();]]>
+    </select>
+    <select id="getImpressionsSumByDate" resultType="Integer">
+    select SUM(impressions)
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+  </select>
+    <select id="getLatestCostSum" resultType="java.math.BigDecimal">
+        select SUM(cost)
+        from original_data_adv_campaigns_report
+        where shop = #{shop} and <![CDATA[area = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date`< CURDATE();]]>
+    </select>
+    <select id="getCostSumByDate" resultType="java.math.BigDecimal">
+        select SUM(cost)
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+    </select>
+    <select id="getLatestAttributedSales1dSum" resultType="java.math.BigDecimal">
+        select SUM(attributed_sales1d)
+        from original_data_adv_campaigns_report
+        where shop = #{shop} and <![CDATA[area = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date`< CURDATE();]]>
+    </select>
+    <select id="getAttributedSales1dSumByDate" resultType="java.math.BigDecimal">
+      select SUM(attributed_sales1d)
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+    </select>
+    <select id="getLatestAttributedConversions1dSum" resultType="java.lang.Integer">
+        select SUM(attributed_conversions1d)
+        from original_data_adv_campaigns_report
+        where shop = #{shop} and <![CDATA[area = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date`< CURDATE();]]>
+    </select>
+    <select id="getAttributedConversions1dSumByDate" resultType="java.lang.Integer">
+        select SUM(attributed_conversions1d)
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+    </select>
+    <select id="getImpressionsListByLatestMonth" resultType="java.util.Map">
+        select `date` as `date`,SUM(impressions) as sum_impressions
+      from original_data_adv_campaigns_report
+      where shop = #{shop} and area = #{area} GROUP BY date ORDER BY date;
+    </select>
+</mapper>

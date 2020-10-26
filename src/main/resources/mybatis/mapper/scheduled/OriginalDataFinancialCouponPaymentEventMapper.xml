@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.scheduled.OriginalDataFinancialCouponPaymentEventMapper">
+    <select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(create_time) AS createTime
+        FROM original_data_financial_coupon_payment_event
+        where 1 = 1
+        <if test="shop!=null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        <if test="couponId != null and couponId != ''">
+            and coupon_id = #{couponId}
+        </if>
+    </select>
+</mapper>

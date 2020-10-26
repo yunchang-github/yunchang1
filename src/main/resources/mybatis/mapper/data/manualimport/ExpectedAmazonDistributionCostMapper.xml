@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.ExpectedAmazonDistributionCostMapper">
+    <select id="getOneInfoByShopAndAreaAndMsku"
+            resultType="com.weiziplus.springboot.models.ExpectedAmazonDistributionCost">
+        SELECT *
+        FROM expected_amazon_distribution_cost
+        WHERE shop = #{shop} AND area = #{area} AND msku = #{msku}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.ExpectedAmazonDistributionCost">
+        SELECT *
+        FROM expected_amazon_distribution_cost
+        <where>
+            <if test="null != shop and '' != shop">
+                shop = #{shop}
+            </if>
+            <if test="null != area and '' != area">
+                AND area = #{area}
+            </if>
+            <if test="null != msku and '' != msku">
+                AND msku = #{msku}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+</mapper>

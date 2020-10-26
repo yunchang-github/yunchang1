@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.SponsoredProductsPlacementReportMapper">
+    <select id="getListDataByYear" resultType="com.weiziplus.springboot.models.SponsoredProductsPlacementReport">
+        SELECT SUM(impressions) AS impressions,SUM(cost) AS spend,
+                SUM(seven_day_total_sales) AS sevenDayTotalSales
+        FROM original_data_adv_campaigns_report
+        WHERE date LIKE concat(#{year},'-%')
+    </select>
+    <select id="getListDataByYearAndMonth"
+            resultType="com.weiziplus.springboot.models.SponsoredProductsPlacementReport">
+        SELECT SUM(impressions) AS impressions,SUM(cost) AS spend,
+                SUM(attributed_sales1d) AS sevenDayTotalSales
+        FROM original_data_adv_campaigns_report
+        WHERE date LIKE concat(#{year},'-',#{month},'-%')
+    </select>
+    <select id="getListGroupByDate" resultType="com.weiziplus.springboot.models.SponsoredProductsPlacementReport">
+        SELECT date,SUM(impressions) AS impressions
+        FROM sponsored_products_placement_report
+        GROUP BY date
+    </select>
+    <select id="getPlacePerspectivePageList" resultType="java.util.Map">
+        SELECT
+        placement,
+        SUM(impressions) AS impressions,SUM(clicks) AS clicks,SUM(spend) AS spend,
+        SUM(seven_day_total_sales) AS sevenDayTotalSales,
+        (SUM(clicks) / SUM(impressions)) AS ctr,
+        (SUM(spend) / SUM(seven_day_total_sales)) AS acos,
+        (
+        SUM(seven_day_total_sales) / (
+        SELECT SUM(seven_day_total_sales) FROM sponsored_products_placement_report
+        )
+        ) AS sales,
+        (SUM(spend) / SUM(clicks)) AS cpc
+        FROM sponsored_products_placement_report
+        <where>
+            <if test="null != date and '' != date">
+                <if test="'fourWeek' == date">
+                    DATE_SUB( CURDATE(), INTERVAL 28 DAY )
+                </if>
+                <if test="'threeMonth' == date">
+                    DATE_SUB( CURDATE(), INTERVAL 90 DAY )
+                </if>
+                <![CDATA[<=]]> date(date)
+            </if>
+        </where>
+        GROUP BY placement
+    </select>
+
+
+    <select id="getPlacePerspectiveList" resultType="java.util.Map">
+        SELECT
+            /*result.shop,
+            result.area,*/
+            result.campaign_ids,
+            result.campaign_names,
+            result.placement /*区域*/,
+            result.`year` /*该年编号*/,
+            <if test="type == 'week'">
+                result.`week` /*该年第几周*/,
+                result.week_start_date,
+                result.week_end_date,
+            </if>
+            <if test="type == 'month'">
+                result.`month` /*该年第几周*/,
+                result.month_start_date,
+                result.month_end_date,
+            </if>
+            result.sum_impressions /*展现量*/,
+            result.sum_clicks /*点击量*/,
+            result.sum_attributed_sales1d /*7天销售额*/,
+            result.sum_cost /*花费*/,
+            IFNULL(countsales1d.sum_sales1d,0) sum_sales1d /*汇总销售额*/,
+            (IFNULL(result.sum_clicks,0)/IFNULL(result.sum_impressions,0)) rate_clicks /*一周点击量/一周展现量 CTR*/,
+            (IFNULL(result.sum_cost,0)/IFNULL(result.sum_attributed_sales1d,0)) rate_cost /*一周花费/一周销售额 ACOS*/,
+            IFNULL((IFNULL(result.sum_attributed_sales1d,0)/IFNULL(countsales1d.sum_sales1d,0)),0) rate_attributed_sales1d /*一周销售额/一周销售额汇总 销售额占比*/,
+            (IFNULL(result.sum_cost,0)/IFNULL(result.sum_clicks,0)) clicks_cost /*一周花费/一周点击量 每次点击费用*/
+        FROM(
+            SELECT
+                odacr.shop,
+                odacr.area,
+                odacr.date,
+                GROUP_CONCAT(odacr.campaign_id ORDER BY odacr.campaign_id) campaign_ids,
+                GROUP_CONCAT(odacr.campaign_name ORDER BY odacr.campaign_id) campaign_names,
+                odacr.placement placement /*区域*/,
+                YEAR(odacr.date) `year` /*该年编号*/,
+                <if test="type == 'week'">
+                    WEEK(odacr.date,1)  `week` /*该年第几周*/,
+                    DATE_SUB(odacr.date,INTERVAL WEEKDAY(odacr.date) + 0 DAY) week_start_date/*一周开始时间*/,
+                    DATE_SUB(odacr.date,INTERVAL WEEKDAY(odacr.date) -6 DAY) week_end_date/*一周结束时间*/,
+                </if>
+                <if test="type == 'month'">
+                    MONTH(odacr.date)  `month` /*该年第几月*/,
+                    CONCAT_WS('-',YEAR(odacr.date),MONTH(odacr.date),'01') month_start_date/*一月开始时间*/,
+                    LAST_DAY(odacr.date) month_end_date/*一月结束时间*/,
+                </if>
+                SUM(IFNULL(odacr.impressions,0)) sum_impressions /*展现量*/,
+                SUM(IFNULL(odacr.clicks,0)) sum_clicks /*点击量*/,
+                SUM(IFNULL(odacr.attributed_sales1d,0)) sum_attributed_sales1d /*7天销售额*/,
+                SUM(IFNULL(odacr.cost,0)) sum_cost /*花费*/
+            FROM original_data_adv_campaigns_report odacr
+            where 1=1
+                /* 条件 */
+                <if test="shop != null and shop != ''">
+                    AND odacr.shop in
+                    <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                        #{shop}
+                    </foreach>
+                </if>
+                <if test="area != null and area != ''">
+                    AND odacr.area in
+                    <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                        #{area}
+                    </foreach>
+                </if>
+                <if test="campaignName != null and campaignName != ''">
+                    AND odacr.campaign_name in
+                    <foreach collection="campaignNameArray" item="campaignName" index="index" open="(" separator="," close=")">
+                        #{campaignName}
+                    </foreach>
+                </if>
+        <if test="type == 'week'">
+            GROUP BY odacr.placement,YEAR(odacr.date),WEEK(odacr.date,1)
+        </if>
+        <if test="type == 'month'">
+            GROUP BY odacr.placement,YEAR(odacr.date),MONTH(odacr.date)
+        </if>
+        ) result
+        LEFT JOIN(
+            SELECT
+                odacr.shop,
+                odacr.area,
+                odacr.campaign_id,
+                YEAR(odacr.date) `year` /*该年编号*/,
+                <if test="type == 'week'">
+                    WEEK(odacr.date,1)  `week` /*该年第几周*/,
+                </if>
+                <if test="type == 'month'">
+                    MONTH(odacr.date)  `month` /*该年第几月*/,
+                </if>
+                SUM(IFNULL(odacr.attributed_sales1d,0)) sum_sales1d /*7天销售额*/
+            FROM original_data_adv_campaigns_report odacr
+            where 1=1
+                /* 条件 */
+                <if test="shop != null and shop != ''">
+                    AND odacr.shop in
+                    <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                        #{shop}
+                    </foreach>
+                </if>
+                <if test="area != null and area != ''">
+                    AND odacr.area in
+                    <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                        #{area}
+                    </foreach>
+                </if>
+                <if test="campaignName != null and campaignName != ''">
+                    AND odacr.campaign_name in
+                    <foreach collection="campaignNameArray" item="campaignName" index="index" open="(" separator="," close=")">
+                        #{campaignName}
+                    </foreach>
+                </if>
+            <if test="type == 'week'">
+                GROUP BY YEAR(odacr.date),WEEK(odacr.date,1)
+                )countsales1d ON countsales1d.`year`=result.`year` AND countsales1d.`week`=result.`week` AND countsales1d.shop=result.shop AND countsales1d.area=result.area
+            </if>
+            <if test="type == 'month'">
+                GROUP BY YEAR(odacr.date),MONTH(odacr.date)
+                )countsales1d ON countsales1d.`year`=result.`year` AND countsales1d.`month`=result.`month` AND countsales1d.shop=result.shop AND countsales1d.area=result.area
+            </if>
+        WHERE 1=1
+        <choose>
+            <when test="date != null and date != ''">
+                <if test="type == 'week'">
+                    and DATE_FORMAT(result.date,'%Y%u') IN
+                </if>
+                <if test="type == 'month'">
+                    and DATE_FORMAT(result.date,'%Y%c') IN
+                </if>
+                <foreach collection="paramDateArry" item="date" index="index" open="(" separator="," close=")">
+                    #{date}
+                </foreach>
+            </when>
+            <otherwise>
+                <if test="type == 'week'">
+                    and  CONCAT(result.`year`,result.`week`) between (DATE_FORMAT((SELECT MAX(date) from original_data_adv_campaigns_report) ,'%Y%U')-3)
+                    and  (DATE_FORMAT((SELECT MAX(date) from original_data_adv_campaigns_report) ,'%Y%U'))
+                </if>
+                <if test="type == 'month'">
+                    and CONCAT(result.`year`,result.`month`) between
+                    (DATE_FORMAT((SELECT MAX(date) from original_data_adv_campaigns_report) ,'%Y%c')-3)
+                    and  (DATE_FORMAT((SELECT MAX(date) from original_data_adv_campaigns_report) ,'%Y%c'))
+                </if>
+            </otherwise>
+        </choose>
+        <if test="type == 'week'">
+            ORDER BY result.placement,result.`year` DESC,result.`week` DESC
+        </if>
+        <if test="type == 'month'">
+            ORDER BY result.placement,result.`year` DESC,result.`month` DESC
+        </if>
+    </select>
+
+
+    <select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(date) AS date
+        FROM sponsored_products_placement_report
+        where 1 = 1
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+    </select>
+
+    <select id="getCampaignName" resultType="String">
+        select campaign_name
+        FROM original_data_adv_campaigns_report
+        <where>
+            <if test="sellerId != null and sellerId != ''">
+                seller_id = #{sellerId}
+            </if>
+            <if test="shopArea != null and shopArea != ''">
+                and  area = #{shopArea}
+            </if>
+        </where>
+        GROUP BY campaign_name
+    </select>
+</mapper>

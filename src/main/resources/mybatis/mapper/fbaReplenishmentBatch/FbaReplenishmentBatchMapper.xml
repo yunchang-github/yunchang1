@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.fbaReplenishmentBatch.FbaReplenishmentBatchMapper">
+  <resultMap id="BaseResultMap" type="com.weiziplus.springboot.models.DO.FbaReplenishmentBatch">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="replenishment_batch_no" jdbcType="VARCHAR" property="replenishmentBatchNo" />
+    <result column="msku" jdbcType="VARCHAR" property="msku" />
+    <result column="local_sku" jdbcType="VARCHAR" property="localSku" />
+    <result column="replenishment" jdbcType="INTEGER" property="replenishment" />
+    <result column="fnsku" jdbcType="VARCHAR" property="fnsku" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, replenishment_batch_no, msku, title, local_sku, replenishment, fnsku
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fba_replenishment_batch
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from fba_replenishment_batch
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.weiziplus.springboot.models.DO.FbaReplenishmentBatch">
+    insert into fba_replenishment_batch (id, replenishment_batch_no, msku, 
+      local_sku, replenishment, fnsku
+      )
+    values (#{id,jdbcType=INTEGER}, #{replenishmentBatchNo,jdbcType=VARCHAR}, #{msku,jdbcType=VARCHAR}, 
+      #{localSku,jdbcType=VARCHAR}, #{replenishment,jdbcType=INTEGER}, #{fnsku,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.weiziplus.springboot.models.DO.FbaReplenishmentBatch">
+    insert into fba_replenishment_batch
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="replenishmentBatchNo != null">
+        replenishment_batch_no,
+      </if>
+      <if test="msku != null">
+        msku,
+      </if>
+      <if test="localSku != null">
+        local_sku,
+      </if>
+      <if test="replenishment != null">
+        replenishment,
+      </if>
+      <if test="fnsku != null">
+        fnsku,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="replenishmentBatchNo != null">
+        #{replenishmentBatchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="msku != null">
+        #{msku,jdbcType=VARCHAR},
+      </if>
+      <if test="localSku != null">
+        #{localSku,jdbcType=VARCHAR},
+      </if>
+      <if test="replenishment != null">
+        #{replenishment,jdbcType=INTEGER},
+      </if>
+      <if test="fnsku != null">
+        #{fnsku,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.weiziplus.springboot.models.DO.FbaReplenishmentBatch">
+    update fba_replenishment_batch
+    <set>
+      <if test="replenishmentBatchNo != null">
+        replenishment_batch_no = #{replenishmentBatchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="msku != null">
+        msku = #{msku,jdbcType=VARCHAR},
+      </if>
+      <if test="localSku != null">
+        local_sku = #{localSku,jdbcType=VARCHAR},
+      </if>
+      <if test="replenishment != null">
+        replenishment = #{replenishment,jdbcType=INTEGER},
+      </if>
+      <if test="fnsku != null">
+        fnsku = #{fnsku,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.weiziplus.springboot.models.DO.FbaReplenishmentBatch">
+    update fba_replenishment_batch
+    set replenishment_batch_no = #{replenishmentBatchNo,jdbcType=VARCHAR},
+      msku = #{msku,jdbcType=VARCHAR},
+      local_sku = #{localSku,jdbcType=VARCHAR},
+      replenishment = #{replenishment,jdbcType=INTEGER},
+      fnsku = #{fnsku,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <select id="selectDataByReplenishmentBatchNoAndLocalSku" resultMap="BaseResultMap">
+      SELECT
+      <include refid="Base_Column_List" />
+      from fba_replenishment_batch
+      <where>
+        <if test="replenishmentBatchNo != null">
+          replenishment_batch_no like CONCAT("%",#{replenishmentBatchNo,jdbcType=VARCHAR},"%")
+        </if>
+        <if test="localSku != null">
+          and local_sku like CONCAT("%",#{localSku,jdbcType=VARCHAR},"%")
+        </if>
+      </where>
+
+    </select>
+</mapper>

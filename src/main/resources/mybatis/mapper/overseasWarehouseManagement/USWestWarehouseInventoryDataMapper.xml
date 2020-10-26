@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.overseasWarehouseManagement.USWestWarehouseInventoryDataMapper">
+    <select id="getList"  parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT
+			c.msku,
+			c.fnsku,
+			c.inventorySku,
+			sum( c.receive_number - c.fcNumber ) AS zcnumber,
+			sum( IF ( c.receive_number = 0, c.number, 0 ) ) AS drnumber
+		FROM
+			(
+		SELECT
+			a.msku,
+			a.fnsku,
+			a.case_number,
+			a.number,
+			a.outbound_time,
+			a.expected_receive_time,
+			a.receive_number,
+			( SELECT stockSku FROM msku WHERE 1 = 1 AND msku = a.msku
+			 	<if test="shop != null and shop != ''">
+		      		and shop = #{shop}
+		       	</if>
+		       	<if test="area != null and area !=''">
+			       		and area = #{area}
+		       	</if>
+			ORDER BY added_time DESC LIMIT 0, 1 ) AS inventorySku,
+				(
+			SELECT
+				number
+			FROM
+				us_xicang_goods_issued_records
+			WHERE
+				msku = a.msku
+				AND fnsku = a.fnsku
+				AND case_number = a.case_number
+				AND shop = a.shop
+				LIMIT 0,
+				1
+				) AS fcNumber
+			FROM
+				`shipment_us_west_warehouse_record` a
+			GROUP BY
+				a.msku,
+				a.fnsku,
+				a.case_number
+				) c
+			GROUP BY
+				c.msku,
+				c.fnsku
+    </select>
+
+</mapper>
+
+
+
+

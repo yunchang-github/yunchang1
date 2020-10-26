@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.shop.RefreshTokenMapper">
+
+    <insert id="addRefreshToken" parameterType="com.weiziplus.springboot.models.RefreshTokenDO">
+        insert into refresh_token(seller_id,region_code,refresh_token) values (#{sellerId,jdbcType=VARCHAR},#{regionCode,jdbcType=VARCHAR},#{refreshToken,jdbcType=VARCHAR})
+    </insert>
+    <select id="selectRefreshTokenBySellerIdAndRegionCode" resultType="com.weiziplus.springboot.models.RefreshTokenDO">
+        select seller_id,region_code,refresh_token from refresh_token where seller_id = #{sellerId,jdbcType=VARCHAR} and region_code = #{regionCode,jdbcType=VARCHAR};
+    </select>
+    <select id="selectRefreshTokensBySellerId" resultType="com.weiziplus.springboot.models.RefreshTokenDO">
+        select * from refresh_token where seller_id = #{sellerId,jdbcType=VARCHAR};
+    </select>
+</mapper>

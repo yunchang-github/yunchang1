@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.overseasWarehouseManagement.MeiXiWarehouseReceivesInventoryFollowUpMapper">
+    <select id="getList"  parameterType="java.util.Map" resultType="java.util.Map">
+	       SELECT
+				a.msku,
+			  	a.fnsku,
+				a.case_number,
+				a.number,
+				a.outbound_time,
+				a.expected_receive_time,
+				a.receive_number,
+			(select stockSku from msku where 1 = 1 and msku = a.msku
+			   		<if test="shop != null and shop != ''">
+			       		and shopsName = #{shop}
+			       	</if>
+			       	<if test="area != null and area !=''">
+			       		and amazonsite = #{area}
+			       	</if>
+			   		order by groundingTime desc limit 0,1)	as inventorySku,
+				(select number from us_xicang_goods_issued_records  where msku = a.msku and fnsku = a.fnsku and case_number = a.case_number and shop = a.shop limit 0,1)	as fcNumber
+			FROM
+				`shipment_us_west_warehouse_record` a
+			GROUP BY
+				a.msku,
+				a.fnsku,
+				a.case_number
+    </select>
+</mapper>
+
+
+
+

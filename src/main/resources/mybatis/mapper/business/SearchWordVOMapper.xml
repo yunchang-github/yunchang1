@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.business.SearchWordVoMapper">
+
+    <insert id="insertSearchWordVO" parameterType="java.util.List">
+        insert into search_word_business
+        (customer_search_term,ctr_o,ctr_s,ctr_t,ctr_f,week_o,week_s,week_t,week_f,year_o,year_s,year_t,year_f,seven_day_total_sales_o,seven_day_total_sales_s,seven_day_total_sales_t,seven_day_total_sales_f,seven_day_total_units_o,seven_day_total_units_s,seven_day_total_units_t,seven_day_total_units_f,acos_o,acos_s,acos_t,acos_f,sum_of_sales_o,sum_of_sales_s,sum_of_sales_t,sum_of_sales_f,sum_impressions_o,sum_impressions_s,sum_impressions_t,sum_impressions_f,cr_o,cr_s,cr_t,cr_f,sum_of_click_o,sum_of_click_s,sum_of_click_t,sum_of_click_f,sum_clicks_o,sum_clicks_s,sum_clicks_t,sum_clicks_f,month_o,month_s,month_t,month_f,seven_day_advertised_sku_sales_o,seven_day_advertised_sku_sales_s,seven_day_advertised_sku_sales_t,seven_day_advertised_sku_sales_f,spend_o,spend_s,spend_t,spend_f,cpc_o,cpc_s,cpc_t,cpc_f,sum_impression_o,sum_impression_s,sum_impression_t,sum_impression_f)
+        values
+        <foreach collection="list" item="SearchWordVo" index="index" separator=",">
+            (
+            #{SearchWordVo.customerSearchTerm},
+            #{SearchWordVo.ctrO},
+            #{SearchWordVo.ctrS},
+            #{SearchWordVo.ctrT},
+            #{SearchWordVo.ctrF},
+            #{SearchWordVo.weekO},
+            #{SearchWordVo.weekS},
+            #{SearchWordVo.weekT},
+            #{SearchWordVo.weekF},
+            #{SearchWordVo.yearO},
+            #{SearchWordVo.yearS},
+            #{SearchWordVo.yearT},
+            #{SearchWordVo.yearF},
+            #{SearchWordVo.sevenDayTotalSalesO},
+            #{SearchWordVo.sevenDayTotalSalesS},
+            #{SearchWordVo.sevenDayTotalSalesT},
+            #{SearchWordVo.sevenDayTotalSalesF},
+            #{SearchWordVo.sevenDayTotalUnitsO},
+            #{SearchWordVo.sevenDayTotalUnitsS},
+            #{SearchWordVo.sevenDayTotalUnitsT},
+            #{SearchWordVo.sevenDayTotalUnitsF},
+            #{SearchWordVo.acosO},
+            #{SearchWordVo.acosS},
+            #{SearchWordVo.acosT},
+            #{SearchWordVo.acosF},
+            #{SearchWordVo.sumofSalesO},
+            #{SearchWordVo.sumofSalesS},
+            #{SearchWordVo.sumofSalesT},
+            #{SearchWordVo.sumofSalesF},
+            #{SearchWordVo.sumImpressionsO},
+            #{SearchWordVo.sumImpressionsS},
+            #{SearchWordVo.sumImpressionsT},
+            #{SearchWordVo.sumImpressionsF},
+            #{SearchWordVo.crO},
+            #{SearchWordVo.crS},
+            #{SearchWordVo.crT},
+            #{SearchWordVo.crF},
+            #{SearchWordVo.sumofClickO},
+            #{SearchWordVo.sumofClickS},
+            #{SearchWordVo.sumofClickT},
+            #{SearchWordVo.sumofClickF},
+            #{SearchWordVo.sumClicksO},
+            #{SearchWordVo.sumClicksS},
+            #{SearchWordVo.sumClicksT},
+            #{SearchWordVo.sumClicksF},
+            #{SearchWordVo.monthO},
+            #{SearchWordVo.monthS},
+            #{SearchWordVo.monthT},
+            #{SearchWordVo.monthF},
+            #{SearchWordVo.sevenDayAdvertisedSkuSalesO},
+            #{SearchWordVo.sevenDayAdvertisedSkuSalesS},
+            #{SearchWordVo.sevenDayAdvertisedSkuSalesT},
+            #{SearchWordVo.sevenDayAdvertisedSkuSalesF},
+            #{SearchWordVo.spendO},
+            #{SearchWordVo.spendS},
+            #{SearchWordVo.spendT},
+            #{SearchWordVo.spendF},
+            #{SearchWordVo.cpcO},
+            #{SearchWordVo.cpcS},
+            #{SearchWordVo.cpcT},
+            #{SearchWordVo.cpcF},
+            #{SearchWordVo.sumImpressionO},
+            #{SearchWordVo.sumImpressionS},
+            #{SearchWordVo.sumImpressionT},
+            #{SearchWordVo.sumImpressionF}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

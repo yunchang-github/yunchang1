@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.SponsoredProductsTargetingReportMapper">
+    <select id="getKeyWordPerspectivePageList" resultType="java.util.Map">
+        SELECT
+        IFNULL(year (keywordAndTarget.date),0) as year, <!--年-->
+        IFNULL(MONTH(keywordAndTarget.date),0) as month,<!--月-->
+        IFNULL(WEEK(keywordAndTarget.date,1),0) as week,<!--周-->
+        IFNULL(keywordAndTarget.keywordAndTarget_text
+        ,0) as targeting,<!--   -->
+        IFNULL(SUM(keywordAndTarget.impressions),0)  AS sumImpressions,<!--展现量-->
+        IFNULL(SUM(keywordAndTarget.clicks),0) AS sumClicks,<!--点击量-->
+        IFNULL(SUM(keywordAndTarget.cost),0.0) AS spend,<!--花费-->
+        IFNULL(SUM(keywordAndTarget.attributed_sales1d),0.0) AS sevenDayTotalSales,
+        IFNULL(SUM(keywordAndTarget.attributed_sales1d_same_SKU),0.0) AS sevenDayAdvertisedSkuSales,
+        IFNULL(SUM(keywordAndTarget.attributed_units_ordered1d),0) AS sevenDayTotalUnits,
+        IFNULL(SUM(keywordAndTarget.cost) / SUM(keywordAndTarget.clicks),0.0) AS cpc,
+        IFNULL(SUM(keywordAndTarget.clicks) / SUM(keywordAndTarget.impressions),0.0) AS ctr,
+        IFNULL(SUM(keywordAndTarget.attributed_units_ordered1d) / SUM(keywordAndTarget.clicks),0.0) AS cr,
+        IFNULL(SUM(keywordAndTarget.cost) / SUM(keywordAndTarget.attributed_sales1d),0.0) AS acos,
+        IFNULL(keywordAndTarget.impressions/SUM(keywordAndTarget.impressions),0.0) as sumofImpression,
+        IFNULL(keywordAndTarget.clicks/SUM(keywordAndTarget.clicks),0.0) as SumofClick,
+        IFNULL(keywordAndTarget.attributed_sales1d/SUM(keywordAndTarget.attributed_sales1d),0.0) as SumofSales
+        FROM(
+        select
+        ori.date ,
+        ori.keyword_text as keywordAndTarget_text,
+        ori.impressions,
+        ori.clicks,
+        ori.cost,
+        ori.attributed_sales1d,
+        ori.attributed_sales1d_same_SKU,
+        ori.attributed_units_ordered1d
+        from
+        original_data_adv_keywords_report as ori
+        <where>
+            <choose>
+                    <when test="null != date and '' != date">
+                        <choose>
+                            <when test="'month' == type">
+                                AND DATE_FORMAT(ori.date,'%Y%c') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                AND DATE_FORMAT(ori.date,'%Y%u') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </when>
+                </choose>
+            <if test="targeting != null and targeting != ''">
+                and ori.keyword_text like concat('%',#{targeting},'%')
+            </if>
+            <if test="null != campaignName and '' != campaignName">
+                AND ori.campaign_name in
+                <foreach collection="campaignNameArray" item="campaignName" index="index" open="(" close=")" separator=",">
+                    #{campaignName}
+                </foreach>
+             </if>
+            <if test="null != adGroupName and '' != adGroupName">
+                AND ori.ad_group_name in
+                <foreach collection="adGroupNameArray" item="adGroupName" index="index" open="(" close=")" separator=",">
+                    #{adGroupName}
+                </foreach>
+            </if>
+            <if test="shop != null and shop != ''">
+                and ori.shop in
+                <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                    #{shop}
+                </foreach>
+            </if>
+            <if test="area != null and area != ''">
+                and ori.area in
+                <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                    #{area}
+                </foreach>
+            </if>
+        </where>
+        union all
+        select
+        target.date,
+        target.targeting_text as keywordAndTarget_text,
+        target.impressions,
+        target.clicks,
+        target.cost,
+        target.attributed_sales1d,
+        target.attributed_sales1d_same_SKU,
+        target.attributed_units_ordered1d
+        from
+        original_data_adv_targets_report target
+        <where>
+            <choose>
+                    <when test="null != date and '' != date">
+                        <choose>
+                            <when test="'month' == type">
+                                AND DATE_FORMAT(target.date,'%Y%c') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                AND DATE_FORMAT(target.date,'%Y%u') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </when>
+                </choose>
+            <if test="targeting != null and targeting != ''">
+                and target.targeting_text like concat('%',#{targeting},'%')
+            </if>
+            <if test="null != campaignName and '' != campaignName">
+                AND target.campaign_name in
+                <foreach collection="campaignNameArray" item="campaignName" index="index" open="(" close=")" separator=",">
+                    #{campaignName}
+                </foreach>
+             </if>
+            <if test="null != adGroupName and '' != adGroupName">
+                AND target.ad_group_name in
+                <foreach collection="adGroupNameArray" item="adGroupName" index="index" open="(" close=")" separator=",">
+                    #{adGroupName}
+                </foreach>
+            </if>
+            <if test="shop != null and shop != ''">
+                and target.shop in
+                <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                    #{shop}
+                </foreach>
+            </if>
+            <if test="area != null and area != ''">
+                and target.area in
+                <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                    #{area}
+                </foreach>
+            </if>
+        </where>
+        ) as keywordAndTarget
+        <if test="null != type and '' != type">
+            <if test="'week' == type">
+                GROUP BY WEEK(keywordAndTarget.date,1),keywordAndTarget.keywordAndTarget_text
+                ORDER BY keywordAndTarget.keywordAndTarget_text,WEEK(keywordAndTarget.date)
+            </if>
+            <if test="'month' == type">
+                GROUP BY MONTH(keywordAndTarget.date),keywordAndTarget.keywordAndTarget_text
+                ORDER BY keywordAndTarget.keywordAndTarget_text,MONTH(keywordAndTarget.date)
+            </if>
+        </if>
+    </select>
+
+    <select id="getKeyWordPerspectiveList" resultType="java.util.Map">
+        SELECT
+        year (ori.date) as year, <!--年-->
+        MONTH(ori.date) as month,<!--月-->
+        WEEK(ori.date,1) as week,<!--周-->
+        ori.keyword_text as targeting,<!--    -->
+        SUM(ori.impressions) AS impressions,<!--展现量-->
+        SUM(ori.clicks) AS sumClicks,<!--点击量-->
+        SUM(ori.cost) AS spend,<!--花费-->
+        SUM(ori.attributed_sales1d) AS sevenDayTotalSales,
+        SUM(ori.attributed_sales1d_same_SKU) AS sevenDayAdvertisedSkuSales,
+        SUM(ori.attributed_units_ordered1d) AS sevenDayTotalUnits,
+        (SUM(ori.cost) / SUM(ori.clicks)) AS cpc,
+        (SUM(ori.clicks) / SUM(ori.impressions)) AS ctr,
+        (SUM(ori.attributed_units_ordered1d) / SUM(ori.clicks)) AS cr,
+        (SUM(ori.cost) / SUM(ori.attributed_sales1d)) AS acos
+        IFNULL(ori.impressions/SUM(ori.impressions),0) as SumofImpression%
+        IFNULL(ori.clicks/SUM(ori.clicks),0) as SumofClick%
+        IFNULL(ori.attributed_sales1d/SUM(ori.attributed_sales1d),0) as SumofSales%
+
+        FROM original_data_adv_keywords_report as ori
+        <where>
+            <choose>
+                    <when test="null != date and '' != date">
+                        <choose>
+                            <when test="'month' == type">
+                                AND DATE_FORMAT(ori.date,'%Y%c') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                AND DATE_FORMAT(ori.date,'%Y%U') in
+                                <foreach collection="paramDateArry" item="paramDate" index="index" open="(" close=")" separator=",">
+                                    #{paramDate}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <otherwise>
+                        <choose>
+                            <when test="'month' == type">
+                                DATE_FORMAT(ori.date,'%Y%c') between (DATE_FORMAT((SELECT MAX(ori.date) from original_data_adv_keywords_report) ,'%Y%c')-3)
+                                and  (DATE_FORMAT((SELECT MAX(ori.date) from original_data_adv_keywords_report) ,'%Y%c'))
+                             </when>
+                            <otherwise>
+                                DATE_FORMAT(ori.date,'%Y%U') between (DATE_FORMAT((SELECT MAX(ori.date) from original_data_adv_keywords_report) ,'%Y%U')-3)
+                                and (DATE_FORMAT((SELECT MAX(ori.date) from original_data_adv_keywords_report) ,'%Y%U'))
+                            </otherwise>
+                        </choose>
+                    </otherwise>
+                </choose>
+
+            <if test="targeting != null and targeting != ''">
+                and ori.keyword_text = #{targeting}
+            </if>
+            <if test="null != campaignName and '' != campaignName">
+                AND ori.campaign_name in
+                <foreach collection="campaignNameArray" item="campaignName" index="index" open="(" close=")" separator=",">
+                    #{campaignName}
+                </foreach>
+             </if>
+            <if test="null != adGroupName and '' != adGroupName">
+                AND ori.ad_group_name in
+                <foreach collection="adGroupNameArray" item="adGroupName" index="index" open="(" close=")" separator=",">
+                    #{adGroupName}
+                </foreach>
+            </if>
+            <if test="shop != null and shop != ''">
+                and ori.shop in
+                <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                    #{shop}
+                </foreach>
+            </if>
+            <if test="area != null and area != ''">
+                and ori.area in
+                <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                    #{area}
+                </foreach>
+            </if>
+        </where>
+        <if test="null != type and '' != type">
+            <if test="'week' == type">
+                GROUP BY WEEK(date,1),ori.keyword_text
+                ORDER BY WEEK(date)
+            </if>
+            <if test="'month' == type">
+                GROUP BY MONTH(date),ori.keyword_text
+                ORDER BY MONTH(date)
+            </if>
+        </if>
+    </select>
+    <select id="getKeyWordPerspectiveSumData" resultType="java.util.Map">
+        SELECT SUM(impressions) AS impressions,SUM(clicks) AS sumClicks,SUM(cost) AS spend,
+                SUM(attributed_sales1d) AS sevenDayTotalSales,
+                SUM(attributed_sales1d_same_SKU) AS sevenDayAdvertisedSkuSales,
+                SUM(attributed_units_ordered1d) AS sevenDayTotalUnits,
+                (SUM(cost) / SUM(clicks)) AS cpc,
+                (SUM(clicks) / SUM(impressions)) AS ctr,
+                (SUM(attributed_units_ordered1d) / SUM(clicks)) AS cr,
+                (SUM(cost) / SUM(attributed_sales1d)) AS acos
+        FROM original_data_adv_keywords_report
+    </select>
+
+    <select id="getCampaignName" resultType="String">
+         select campaign_name
+        from
+        (SELECT kw.campaign_name
+        FROM original_data_adv_keywords_report kw
+        <where>
+            <if test="null != sellerId and sellerId != ''" >
+                kw.seller_id = #{sellerId}
+            </if>
+            <if test="null != shopArea and shopArea != ''">
+                AND kw.area = #{shopArea}
+            </if>
+            <if test="null != adGroupNameList and adGroupNameList.size()>0">
+                and kw.ad_group_name in
+                <foreach collection="adGroupNameList" item="adGroupName" separator="," open="(" close=")">
+                    #{adGroupName}
+                </foreach>
+             </if>
+        </where>
+        group by kw.campaign_name
+        union all
+        SELECT target.campaign_name
+        FROM original_data_adv_targets_report target
+        <where>
+            <if test="null != sellerId and sellerId != ''" >
+                target.seller_id = #{sellerId}
+            </if>
+            <if test="null != shopArea and shopArea != ''">
+                AND target.area = #{shopArea}
+            </if>
+            <if test="null != adGroupNameList and adGroupNameList.size()>0">
+                and target.ad_group_name in
+                <foreach collection="adGroupNameList" item="adGroupName" separator="," open="(" close=")">
+                    #{adGroupName}
+                </foreach>
+            </if>
+        </where>
+        group by target.campaign_name
+        ) as kytarget
+        GROUP BY kytarget.campaign_name
+    </select>
+
+    <select id="getAdGroupName" resultType="String">
+        select ad_group_name
+        from
+        (SELECT kw.ad_group_name
+        FROM original_data_adv_keywords_report kw
+        <where>
+            <if test="null != sellerId and sellerId != ''" >
+                kw.seller_id = #{sellerId}
+            </if>
+            <if test="null != shopArea and shopArea != ''">
+                AND kw.area = #{shopArea}
+            </if>
+            <if test="null != campaignList and campaignList.size()>0">
+                and kw.campaign_name in
+                <foreach collection="campaignList" item="campaignName" separator="," open="(" close=")">
+                    #{campaignName}
+                </foreach>
+            </if>
+        </where>
+        group by kw.ad_group_name
+        union all
+        SELECT target.ad_group_name
+        FROM original_data_adv_targets_report target
+        <where>
+            <if test="null != sellerId and sellerId != ''" >
+                target.seller_id = #{sellerId}
+            </if>
+            <if test="null != shopArea and shopArea != ''">
+                AND target.area = #{shopArea}
+            </if>
+            <if test="null != campaignList and campaignList.size()>0">
+                and target.campaign_name in
+                <foreach collection="campaignList" item="campaignName" separator="," open="(" close=")">
+                    #{campaignName}
+                </foreach>
+            </if>
+        </where>
+        group by target.ad_group_name
+        ) as kytarget
+        GROUP BY kytarget.ad_group_name
+    </select>
+</mapper>

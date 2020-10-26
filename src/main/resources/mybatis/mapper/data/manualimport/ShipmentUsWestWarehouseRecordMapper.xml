@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.ShipmentUsWestWarehouseRecordMapper">
+    <select id="getOneInfoByMskuAndFnSkuAndCaseNumber"
+            resultType="com.weiziplus.springboot.models.ShipmentUsWestWarehouseRecord">
+        SELECT *
+        FROM shipment_us_west_warehouse_record
+        WHERE msku = #{msku} AND fnsku = #{fnsku} AND case_number = #{caseNumber}
+        LIMIT 1
+    </select>
+
+    <select id="getOneInfoByCondition" resultType="com.weiziplus.springboot.models.ShipmentUsWestWarehouseRecord">
+        select * from shipment_us_west_warehouse_record where 1 = 1
+        <if test="shop!= null and shop != ''">
+            and shop =  #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        <if test="caseNumber != null and caseNumber != ''">
+            and case_number = #{caseNumber}
+        </if>
+        <if test="shipmentId != null and shipmentId != ''">
+            and shipment_id = #{shipmentId}
+        </if>
+        <if test="fnsku != null and fnsku != ''">
+            and fnsku = #{fnsku}
+        </if>
+        <if test="msku != null and msku != ''">
+            and msku = #{msku}
+        </if>
+    </select>
+
+    <select id="getPageList" resultType="com.weiziplus.springboot.models.ShipmentUsWestWarehouseRecord">
+        select  * from shipment_us_west_warehouse_record where 1 = 1
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        <if test="msku != null and msku != ''">
+            and msku = #{msku}
+        </if>
+        <if test="fnsku != null and fnsku != ''">
+            and fnsku = #{fnsku}
+        </if>
+        <if test="instockSku != null and instockSku!= ''">
+            and instock_sku = #{instockSku}
+        </if>
+        <if test="shipmentId != null and shipmentId != ''">
+            and shipment_id = #{shipmentId}
+        </if>
+
+        <if test="caseNumber != null and caseNumber != ''">
+            and case_number = #{caseNumber}
+        </if>
+    </select>
+</mapper>

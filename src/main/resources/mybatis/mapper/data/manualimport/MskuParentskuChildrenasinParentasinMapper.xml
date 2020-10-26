@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.MskuParentskuChildrenasinParentasinMapper">
+    <select id="getOneInfoByShopAndAreaAndMsku"
+            resultType="com.weiziplus.springboot.models.MskuParentskuChildrenasinParentasin">
+        SELECT *
+        FROM msku_parentsku_childrenasin_parentasin
+        WHERE shop = #{shop} AND area = #{area} AND msku = #{msku}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.MskuParentskuChildrenasinParentasin">
+        SELECT *
+        FROM msku_parentsku_childrenasin_parentasin
+        where 1 = 1
+            <if test="null != shop and '' != shop">
+               and  shop in
+                <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                    #{shop}
+                </foreach>
+            </if>
+            <if test="null != area and '' != area">
+               and  area in
+                <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                    #{area}
+                </foreach>
+            </if>
+            <if test="null != msku and '' != msku">
+               and  msku = #{msku}
+            </if>
+            <if test="parentSku != null and parentSku != ''">
+                and parent_sku = #{parentSku}
+            </if>
+
+        ORDER BY id desc
+    </select>
+</mapper>

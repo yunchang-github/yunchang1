@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.DetailPageSalesAndTrafficByChildItemMapper">
+    <select id="getList" resultType="java.util.Map">
+		SELECT
+			result.casin,
+			result.sku,
+			result.page_views /* 总页面浏览次数 */,
+			result.ordered_product_sales,
+			result.ordered_product_sales_b2b,
+			result.impressions,
+			result.sold_units,
+			result.ads_cost,
+			result.generated_ads_rev,
+			result.actual_ads_rev,
+			IFNULL((result.actual_ads_rev/result.generated_ads_rev),0) effective_conversion_rate /* 有效转化率 */,
+			IFNULL((result.click/result.impressions),0) ctr /* CTR */,
+			IFNULL((result.sold_units/result.click),0) ad_cr /* Ad CR */,
+			IFNULL((result.ads_cost/result.generated_ads_rev),0) acos /* ACoS */,
+			IFNULL((result.ads_cost/result.click),0) cpc /* CPC */,
+			IFNULL((result.ordered_product_sales+result.ordered_product_sales_b2b),0) total_rev /* ASIN总销售额 */,
+			IFNULL((result.click/result.page_views),0) click_view_rate /* Click/页面浏览% */,
+			IFNULL((result.actual_ads_rev/IFNULL((result.ordered_product_sales+result.ordered_product_sales_b2b),0)),0) ads_revs_rate /* Ads Rev/Rev% */,
+			IFNULL((result.ads_cost/IFNULL((result.ordered_product_sales+result.ordered_product_sales_b2b),0)),0) ads_cost_rev_rate /* Ads Cost/Rev% */
+		FROM(
+			SELECT
+				dpstc.pasin,
+				dpstc.casin,
+				IFNULL(sare.sku,'') sku,
+				dpstc.page_views,
+				dpstc.ordered_product_sales,
+				dpstc.ordered_product_sales_b2b,
+				SUM(IFNULL(odap.impressions,0)) impressions/* 展现量 - 子 - 和 -28Day */,
+				SUM(IFNULL(odap.clicks,0)) click/* 点击量 - 子 - 和 -28Day*/,
+				SUM(IFNULL(odap.attributed_units_ordered1d,0)) sold_units/* 销售量 - 子 - 和 -28Day*/,
+				SUM(IFNULL(odap.cost,0)) ads_cost/* 花费 - 子 - 和 -28Day*/,
+				SUM(IFNULL(odap.attributed_sales1d,0)) generated_ads_rev/* 销售额 - 子 - 和 -28Day*/,
+				SUM(IFNULL(odap.attributed_sales1d_same_SKU,0)) actual_ads_rev/* 广告SKU销售额 - 子 - 和 -28Day*/
+			FROM (
+				SELECT
+					dpstci.pasin,
+					dpstci.casin,
+					SUM(IFNULL(dpstci.page_views,0)) page_views /* 累计页面浏览量 -28Day */,
+					SUM(IFNULL(dpstci.ordered_product_sales,0)) ordered_product_sales /* 累计已订购商品销售额 -28Day */,
+					SUM(IFNULL(dpstci.ordered_product_sales_b2b,0)) ordered_product_sales_b2b /* 累计已订购商品的销售额B2B -28Day */
+				FROM
+					detail_page_sales_and_traffic_by_child_item dpstci
+				where 1 = 1
+				<if test="asin != null and asin != ''">
+					and dpstci.casin = #{asin}
+				</if>
+				<if test="shop != null and shop != ''">
+					and dpstci.shop in
+					<foreach collection="shopArray" item="shop" index="index"
+							 open="(" close=")" separator=",">
+						#{shop}
+					</foreach>
+				</if>
+				<if test="area != null and area != ''">
+					and dpstci.area in
+					<foreach collection="areaArray" item="area" index="index"
+							 open="(" close=")" separator=",">
+						#{area}
+					</foreach>
+				</if>
+				GROUP BY dpstci.casin, DATE_FORMAT(dpstci.date,'%Y-%c-%d')
+			)dpstc
+			LEFT JOIN sku_asin AS sare ON sare.asin=dpstc.casin
+			LEFT JOIN original_data_adv_productads_report AS odap ON  odap.asin = dpstc.casin AND  odap.date>=DATE_SUB(CURDATE(), INTERVAL 28 DAY)
+			GROUP BY dpstc.casin
+		)result
+		ORDER BY (result.ordered_product_sales+result.ordered_product_sales_b2b) DESC
+    </select>
+    <select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(date) AS date
+        FROM detail_page_sales_and_traffic_by_child_item
+        where 1 = 1
+        <if test="shop != null and shop != ''">
+			and shop = #{shop}
+		</if>
+		<if test="area != null and area != ''">
+			and area = #{area}
+		</if>
+	</select>
+    <select id="getOneInfoByShopAndAreaAndDate"
+            resultType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItem">
+        SELECT *
+        FROM detail_page_sales_and_traffic_by_child_item
+        WHERE shop = #{shop} AND area = #{area} AND date = #{date}
+        LIMIT 1
+    </select>
+</mapper>

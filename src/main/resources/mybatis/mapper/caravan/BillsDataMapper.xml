@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.BillsDataMapper">
+    <select id="getOneInfoByPayMentOrderIdAndOrderNumAndPayTime"
+            resultType="com.weiziplus.springboot.models.BillsData">
+        SELECT *
+        FROM bills_data
+        WHERE payMentOrderId = #{payMentOrderId} AND orderNum = #{orderNum}
+        <choose>
+            <when test="null != payTime">
+                AND payTime = #{payTime}
+            </when>
+            <otherwise>
+                AND payTime IS NULL
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+</mapper>

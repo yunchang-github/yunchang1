@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.overseasWarehouseManagement.RemoveOrderRootDataMapper">
+    <select id="getList"  parameterType="java.util.Map" resultType="java.util.Map">
+       	SELECT
+			rsd.*,
+			rod.requested_quantity,
+			rod.shipped_quantity AS shippedNumber,
+			roar.order_type,
+			roar.refund_type,
+			roar.warehouse_code,
+			roar.is_change,
+			roar.new_msku,
+			roar.new_fnsku,
+			udrropd.actual_number_receipts 
+		FROM
+			( SELECT order_id, tracking_number, fnsku, sku, shipped_quantity FROM `removal_shipment_detail` 
+			<if test="shop != null and shop != ''">
+       		and shop = #{shop}
+	       	</if>
+	       	<if test="area != null and area !=''">
+	       		and area = #{area}
+	       	</if>
+			GROUP BY order_id, tracking_number, fnsku, sku ) rsd
+			LEFT JOIN removal_order_detail rod ON rod.order_id = rsd.order_id 
+			AND rod.fnsku = rsd.fnsku 
+			AND rod.sku = rsd.sku 
+			<if test="shop != null and shop != ''">
+       		and shop = #{shop}
+       		</if>
+       		<if test="area != null and area !=''">
+       			and area = #{area}
+       		</if>
+			LEFT JOIN remove_order_action_record roar ON rsd.tracking_number = roar.tracking_number 
+			AND roar.fnsku = rsd.fnsku
+			<if test="shop != null and shop != ''">
+       			and shop = #{shop}
+	       	</if>
+	       	<if test="area != null and area !=''">
+	       		and area = #{area}
+	       	</if>
+			LEFT JOIN US_Dongcang_receives_removal_order_processing_data udrropd ON udrropd.tracking_number = rsd.tracking_number 
+			AND udrropd.fnsku = rsd.fnsku
+			<if test="shop != null and shop != ''">
+       			and shop = #{shop}
+	       	</if>
+	       	<if test="area != null and area !=''">
+	       		and area = #{area}
+	       	</if>
+	       	
+    </select>
+   
+</mapper>

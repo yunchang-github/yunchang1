@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.RemoveOrderActionRecordMapper">
+    <select id="getPageList" resultType="com.weiziplus.springboot.models.RemoveOrderActionRecord">
+        select * from remove_order_action_record where 1 = 1
+        <if test="code != null and code != ''">
+            and order_number = #{code}
+        </if>
+        <if test="fmsku != null and fmsku !=''">
+            and fnsku = #{fmsku}
+        </if>
+        <if test="ydcode != null and ydcode != ''">
+            and tracking_number = #{ydcode}
+        </if>
+        <if test="newfmsku != null and newfmsku != ''">
+            and new_fnsku = #{newfmsku}
+        </if>
+        <if test="newmsku != null and newmsku != ''">
+            and new_msku = #{newmsku}
+        </if>
+        <if test="orderType != null">
+            and order_type = #{orderType}
+        </if>
+        <if test="refundType != null">
+            and refund_type = #{refundType}
+        </if>
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index"
+                     open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index"
+                     open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        order by id desc
+    </select>
+    <select id="getOneInfoByTrackingNumberAndFnSku"
+            resultType="com.weiziplus.springboot.models.RemoveOrderActionRecord">
+        SELECT *
+        FROM remove_order_action_record
+        WHERE tracking_number= #{number} AND fnsku = #{fnsku}
+        LIMIT 1
+    </select>
+</mapper>

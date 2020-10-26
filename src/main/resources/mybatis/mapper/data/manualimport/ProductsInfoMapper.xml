@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.ProductsInfoMapper">
+    <select id="getOneInfoByShopAndAreaAndMsku"
+            resultType="com.weiziplus.springboot.models.ProductsInfo">
+        SELECT *
+        FROM products_info
+        WHERE shop = #{shop} AND area = #{area} AND msku = #{msku}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.ProductsInfo">
+        SELECT *
+        FROM products_info
+        <where>
+            <if test="null != shop and '' != shop">
+                shop = #{shop}
+            </if>
+            <if test="null != area and '' != area">
+                area = #{area}
+            </if>
+            <if test="null != msku and '' != msku">
+                msku = #{msku}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+</mapper>

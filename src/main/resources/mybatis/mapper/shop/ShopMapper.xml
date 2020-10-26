@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.shop.ShopMapper">
+    <select id="getList" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT id,shop_name,shop_account,seller_id,mws_auth_token,aws_access_key_id,secret_key,create_time,is_adv_authorization,refresh_token
+        FROM shop
+        <where>
+            <if test="null != name and '' != name">
+                POSITION(#{name} IN shop_name)
+            </if>
+            <if test="null != createTime and '' != createTime">
+                AND create_time LIKE concat(#{createTime},'%')
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+    <select id="getAllList" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT id,shop_name,seller_id
+        FROM shop
+        ORDER BY id
+    </select>
+    <select id="getOneInfoByName" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT *
+        FROM shop
+        WHERE shop_name = #{name}
+        LIMIT 1
+    </select>
+    <select id="getOneInfoBySellerId" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT *
+        FROM shop
+        WHERE seller_id = #{sellerId}
+        LIMIT 1
+    </select>
+    <select id="getAuthedShopList" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT * FROM `shop`
+        where isnull(refresh_token) = 0
+        and length(trim(refresh_token))>0
+        and is_adv_authorization = '1'
+    </select>
+    <select id="getOneInfoByShopId" resultType="com.weiziplus.springboot.models.Shop">
+        SELECT id,shop_name,shop_account,shop_password,seller_id,mws_auth_token,aws_access_key_id,secret_key,create_time,is_adv_authorization,refresh_token
+        FROM shop
+        WHERE id = #{shopId}
+    </select>
+    <insert id="insertShopInfo" parameterType="com.weiziplus.springboot.models.DO.AuthorizationDO">
+        insert into shop(shop_name,seller_id,mws_auth_token,aws_access_key_id,secret_key,create_time)
+        values
+        (#{authorizationDO.shopName,jdbcType=VARCHAR},
+        #{authorizationDO.sellerId,jdbcType=VARCHAR},
+        #{authorizationDO.mwsAuthToken,jdbcType=VARCHAR},
+        #{authorizationDO.awsAccessKeyId,jdbcType=VARCHAR},
+        #{authorizationDO.secretKey,jdbcType=VARCHAR},
+        #{authorizationDO.createTime,jdbcType=VARCHAR})
+    </insert>
+</mapper>

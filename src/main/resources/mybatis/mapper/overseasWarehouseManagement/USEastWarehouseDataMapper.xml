@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.overseasWarehouseManagement.USEastWarehouseDataMapper">
+    <select id="getList"  parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.UsEastWarehouseData">
+       select * from us_east_warehouse_data where 1 = 1 
+       <if test="placeBoxNumber != null and placeBoxNumber != ''">
+			and place_box_number = #{placeBoxNumber}			       	
+       </if>
+       <if test="msku != null and msku != ''">
+       	    and  msku = #{msku}
+       </if>
+       <if test="startDate != null and startDate != ''">
+       		and receive_time between #{startDate} and #{endDate}
+       </if>
+    </select>
+    <select id="getOneInfoByUSEastWarehouseDataId" parameterType="Long" resultType="com.weiziplus.springboot.models.UsEastWarehouseData">
+    	select * from us_east_warehouse_data where id= #{value}
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.PurchaseMapper">
+    <delete id="deleteByDate">
+        DELETE pd,pdi
+        FROM purchase_data pd,purchase_data_item pdi
+        WHERE pd.date = #{date} AND pd.id = pdi.purchase_data_id
+    </delete>
+    <select id="getOneInfoByPurchaseId"
+            resultType="com.weiziplus.springboot.models.PurchaseData">
+        SELECT *
+        FROM purchase_data
+        WHERE purchaseId = #{purchaseId}
+        LIMIT 1
+    </select>
+    <delete id="deletePurchaseDataItemByPurchaseDataIds">
+        DELETE FROM purchase_data_item
+        WHERE purchase_data_id IN (
+        <foreach collection="purchaseDataIds" item="purchaseDataId" separator=",">
+            #{purchaseDataId}
+        </foreach>
+        )
+    </delete>
+</mapper>

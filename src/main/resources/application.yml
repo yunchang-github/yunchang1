@@ -1,0 +1,94 @@
+#############################################通用配置#############################################
+spring:
+  #启动什么配置
+  profiles:
+    active: dev
+  #配置数据源
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    ###################以下为druid增加的配置###########################
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    druid:
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 3000000
+  #指定使用redis数据库
+  redis:
+    #索引(默认为0)
+    database: 0
+    host: 121.40.215.135
+    port: 6379
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池中的最小空闲连接
+        min-idle: 0
+        # 连接超时时间（毫秒）
+        timeout: 8000
+  #    password: redis666
+  #  jackson:
+#    #配置时间格式
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: GMT+8
+  resources:
+    static-locations: classpath:static/,classpath:public/,file:static/
+mybatis:
+  #设置MyBatis配置
+  configuration:
+    #返回类型为Map时，null也返回
+    call-setters-on-nulls: true
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+  #指定sql映射文件位置
+  mapper-locations: classpath:mybatis/mapper/**/*Mapper.xml
+#pagehelper分页插件配置
+pagehelper:
+  helper-dialect: mysql
+  #为了使用输入页数为负或者超出最大页时候使页数为最小或最大值
+  reasonable: false
+  support-methods-arguments: false
+  params: count=countSql
+logging:
+  config: classpath:config/logback-spring.xml
+
+#自定义全局变量*******注意:  :后面要有空格
+global:
+  #当前店铺id
+  #shop-id: 7
+  shop-id: 9
+  #当前店铺name
+  shop-name: 迈阳测试账号
+  #亚马逊广告api
+  #广告授权链接
+  redirect_uri: https://sspa.mightyoung.com/login
+  #refresh_token
+  #refresh-token: Atzr|IwEBIPdAJ7cNydu4sID9W5BSTX9mifYyjMxZJs69CzY4XKOgtqakMXgYTof4UqQFzN8oEIuKBMM37Aqm1WcgwfVsme1KmtUOcwhrgUtSPLtTg1TJ9NNNoH2uaJZJLPRFl2a9GJlyF3tmAlvj9W0igGEEicp470QkdjNx2hXc2FUjgsJj4FojIbxWWOSjTVESDj3SJ-4dQisAOux5Bpala3i14DpXBV3p67OOZU54q3q157UlmSK1Z7P0O0ar3Tv7jPJ-KRTK0yVmGbSwVe6CxH4v6DHmkO-j3kPjBSsiEl4w9TkvoTLSAgpVfQw7U03RO_vNY2Jsy9t7zVNLwnburA39BLzToR8s8jSbOFPp6gxWafym_C1_6jjljYhUI4J4fAvD1HLs6C_dtyiRBPqn71BKb65LL7imqudGC9KLgvrIUYIe_MyRcJURAWMUfxg18PeXEdxHkemQguaLwdF4KNEf2wPZDxko8iUlDnaTgkjKO0ULRw3rP-9i9smBj57NEOFAdLYEkTV5u9kKdNaNh8Rvm_QYPrzZsGB9j2iOWFnTkhO8mU-1dzhPAYKkBR9VqjkmWxirtLs4GQnBX1ERIKERbH28WHs1NIm48WTpatyhncL-6Nw7EKqw7Zc4tSZO9QRbQOFCaFpFFFu9uacENalPn4ep
+  #refresh-token: Atzr|IwEBIKt05hqrro3xL4_uE_p_1R8ARcvdbqU-rwMWS_lFPtmowhafaApagYgTIzzn1mttKTapPcNWUVlyiwOqyN9wssNX8eORtZC2wLk22uvUoL2EwE0IIFXGB29-2GN4It1CvBT125euHQCFCCDKHzYWuweN2J757HHdylOFg63vSN_fZsYkvmIJs9xI5jpzZsSavKPa29K0YU19ZO-t7xkW9ViPHZl5llN8m7W3d182dmdGRQX8eETtCsGOgPKHxnw_b4UGLYCUW0xt-MM4UncWb_lnm3U2ittfWwqbxBFAxPh3uRv6K24GRvuz8l-ncEAI5V2e681FLPSKi6404VtZrvZ7eL24jguX6sds8cLKd4lYSD2Rus8AyZPPc-AB4Kj7QtuTA4sv0oMD4t15B5KC_90p0tur5xNA9QySh6lfI7ls18hoYGYd9Um2mxN2-dZy5TWCdTXlWLUkcUMElHY4ByRyo-V9ovMRFUlQ-cefv63Vz7SR4h_OoQUkdcBlJZ7IKvKfN8qzQaOpf9RhKzeGvPycuZ_mZOFhOjRKmKVSOQ6OyPJ4hw368BGLrV1_Y6jVZcQs7CJb6kCEnzLvl1cMyn3U
+  #client_id
+  client-id: amzn1.application-oa2-client.6b90cbea816e41e9bc6554cd3f917f75
+  #client_secret
+  client-secret: ffd3d026095b1296210cfc6c8cda6b13394c294471ef984446ac6e1830450a57
+  #scope-profile-id-------Amazon-Advertising-API-Scope
+  #scope-profile-id: 25862738757054
+  #马帮api
+  #开发者账号
+  developer-id: 100269
+  #开发者秘钥
+  auth-token: 61d92a4e43226a91a29df41d3c13ee62
+  #企业编号
+  company-id: 100009
+#加密配置
+jasypt:
+  encryptor:
+    password: ycpc123..

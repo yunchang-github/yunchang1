@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.InventoryAgeMapper">
+
+       <select id="getStockFromInventoryAge" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.InventoryAge">
+				SELECT
+					sum( inv_age_91_to_180_days + inv_age_181_to_270_days + inv_age_271_to_365_days + inv_age_365_plus_days ) as moreNinety
+				FROM
+					inventory_age
+				WHERE
+					asin = #{param.asin}
+				<if test="param.area != null and param.area !='' ">
+  					and area = #{param.area}
+  				</if>
+  				<if test="param.shop != null and param.shop != ''">
+  					and shop = #{param.shop}
+  				</if>
+    </select>
+
+	<select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(snapshot_date) AS snapshotDate
+        FROM inventory_age
+        where 1 = 1
+        <if test="shop != null and shop != ''">
+			and shop = #{shop}
+		</if>
+		<if test="area != null and area != ''">
+			and area = #{area}
+		</if>
+
+    </select>
+
+</mapper>

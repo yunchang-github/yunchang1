@@ -1,0 +1,49 @@
+#####################################开发版配置####################################
+## Https端口
+#server:
+#  port: 8082
+## Http端口
+http:
+    port: 8080
+spring:
+  #开发版配置
+  profiles: dev
+  #配置数据源
+  datasource:
+    username: ENC(0WRd/s0l6HbKpBd+sCk0AA==)
+    password: ENC(ryM0Xl/Iwi7x28kuU2FSstXXqSb3aabA)
+    url: jdbc:mysql://121.40.215.135:3306/sspa-test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=CTT&unullNamePatternMatchesAll=true
+#    username: root
+#    password: 123456
+#    url: jdbc:mysql://localhost:3306/yunchang-test?useSSL=false&serverTimezone=CTT&unullNamePatternMatchesAll=true
+#    username: ENC(9GrsHCUk5JUiUHJF0I4Shw==)
+#    password: ENC(9GrsHCUk5JUiUHJF0I4Shw==)
+#    url: jdbc:mysql://localhost:3306/maiyang?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+  #指定使用redis数据库
+  redis:
+    port: 6379
+    #password: 123456
+    #连接超时时间
+    timeout: 10000ms
+  servlet:
+    multipart:
+      #设置单个文件上传最大限制
+      max-file-size: 5MB
+      #设置多个文件上传最大限制
+      max-request-size: 100MB
+mybatis:
+  #设置MyBatis全局变量
+  configuration-properties:
+    #文件存放域名前缀
+    filePathPrefix: http://192.168.3.233:8080/
+#是否启用swagger
+swagger:
+  enable: true
+
+#自定义全局变量*******注意:  :后面要有空格
+global:
+  #图片存放路径
+  base-file-path: E:\idea\WeiziPlus\restaurant\springboot\target\classes\static\
+  #允许跨域地址
+  cors-filter-origins: http://localhost,https://www.amazon.com/,https://sspa.mightyoung.com
+  shop-id: 7

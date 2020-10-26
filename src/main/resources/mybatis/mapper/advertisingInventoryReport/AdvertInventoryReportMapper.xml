@@ -1,0 +1,1818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.AdvertInventoryReportMapper">
+    <select id="getChildInventoryAdvertisingReport" parameterType="java.util.Map"
+            resultType="com.weiziplus.springboot.models.DO.ChildBodyInventoryReportDO">
+        SELECT
+        inventory_data.csku AS csku,
+        /*子sku*/
+        inventory_data.casin AS casin,
+        /*子asin*/
+        inventory_data.psku AS psku,
+        /*父sku*/
+        inventory_data.sum_quantity AS sum_quantity,
+        /*一周销量总和*/
+        ROUND(inventory_data.unit_price,2) AS unit_price,
+        /*一周销售单价*/
+        inventory_data.afn_fulfillable_quantity AS afn_fulfillable_quantity,
+        /*manage_fba_inventory表 可售库存*/
+        inventory_data.afn_inbound_shipped_quantity AS afn_inbound_shipped_quantity,
+        /*manage_fba_inventory表 待签收库存*/
+        inventory_data.afn_inbound_receiving_quantity AS afn_inbound_receiving_quantity,
+        /*manage_fba_inventory表 已签收库存*/
+        inventory_data.reserved_fc_transfers AS reserved_fc_transfers,
+        /*reserved_inventory表 转库中库存*/
+        (inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) as total_inventory,
+        /*总库存*/
+        inventory_data.afn_unsellable_quantity AS afn_unsellable_quantity,
+        /*manage_fba_inventory表 不可售库存*/
+        (inventory_data.inv_age_91_to_180_days + inventory_data.inv_age_181_to_270_days +
+        inventory_data.inv_age_271_to_365_days + inventory_data.inv_age_365_plus_days) AS
+        sum_inv_age_90_plus_days,/*inventory_age表 库存大于90天库存*/
+        inventory_data.sum_impressions AS sum_impressions,
+        /*广告一周展现量*/
+        inventory_data.sum_clicks AS sum_clicks,
+        /*广告一周点击量*/
+        inventory_data.sum_cost AS sum_cost,
+        /*一周广告费*/
+        inventory_data.sum_attributed_units_ordered AS sum_attributed_units_ordered,
+        /*一周广告销售量*/
+        inventory_data.sum_attributed_sales AS sum_attributed_sales,
+        /*一周广告销售额*/
+        inventory_data.sum_attributed_sales_same_SKU AS sum_attributed_sales_same_SKU,
+        /*一周广告SKU销售额*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_attributed_sales_same_SKU / inventory_data.sum_attributed_sales),0),2) *
+        100,'%') AS Effective_conversion_rate,
+        /*有效转化率*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_clicks / inventory_data.sum_impressions),0),2) * 100,'%') AS CTR,
+        /*CTR*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_attributed_units_ordered / inventory_data.sum_clicks),0) * 100,2),'%')
+        AS CR,
+        /*CR*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_cost / inventory_data.sum_attributed_sales),0),2) * 100,'%') AS ACoS,
+        /*ACoS*/
+        ROUND(IFNULL((inventory_data.sum_cost / inventory_data.sum_clicks),0),2) AS CPC,
+        /*CPC*/
+        inventory_data.sum_buyer_visits AS sum_buyer_visits,
+        /*访客人数*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_quantity / inventory_data.sum_buyer_visits),0) *100,2),'%') AS
+        Sales_Views_Conversion_Rate,
+        /*（销量/浏览次数）转化率*/
+        ROUND((inventory_data.sum_quantity / 7),0) AS expected_daily_sales,/*预估每日销量*/
+        ROUND(inventory_data.sum_quantity / 7 * 60,0) AS expected_60_days_sales,/*预计60天销量*/
+        ROUND(((inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) -
+        (inventory_data.sum_quantity / 7 * 60)),0) AS expected_total_inventory_after_60_days,
+        /*预计60日后总库存*/
+        ROUND(IFNULL((inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) /
+        IFNULL(inventory_data.sum_quantity / 7,0),0),0) AS expected_availability,
+        /*预计可售天数*/
+        DATE_ADD(CURDATE(),INTERVAL ROUND(IFNULL((inventory_data.afn_fulfillable_quantity +
+        inventory_data.afn_inbound_shipped_quantity + inventory_data.afn_inbound_receiving_quantity +
+        inventory_data.reserved_fc_transfers) / IFNULL(inventory_data.sum_quantity / 7,0),0)) DAY) AS
+        expected_sale_date,
+        /*预计可售日期*/
+        ROUND(((IFNULL(inventory_data.sum_quantity / 7,0) * 60) - (inventory_data.afn_fulfillable_quantity +
+        inventory_data.afn_inbound_shipped_quantity + inventory_data.afn_inbound_receiving_quantity +
+        inventory_data.reserved_fc_transfers)),0) AS shortage_inventory_estimates,
+        /*紧缺库存预估量*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_clicks / inventory_data.sum_buyer_visits,0) * 100,2),'%') AS
+        clicks_visits_rate,
+        /*Click/访客人数%*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_attributed_sales_same_SKU / (inventory_data.sum_quantity *
+        inventory_data.unit_price),0) * 100,2),'%') AS ads_rev_rate,
+        /*Ads Rev/Rev%*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_cost / (inventory_data.sum_quantity * inventory_data.unit_price),0) *
+        100,2),'%') as ads_cost_rate
+        /*Ads Cost/Rev%*/
+        FROM
+        (
+        SELECT
+        temp2.csku AS csku,
+        temp2.casin AS casin,
+        temp2.psku AS psku,
+        temp2.sum_quantity AS sum_quantity,
+        temp2.unit_price as unit_price,
+        temp2.afn_fulfillable_quantity as afn_fulfillable_quantity,
+        temp2.afn_inbound_shipped_quantity as afn_inbound_shipped_quantity,
+        temp2.afn_inbound_receiving_quantity as afn_inbound_receiving_quantity,
+        temp2.reserved_fc_transfers as reserved_fc_transfers,
+        temp2.afn_unsellable_quantity as afn_unsellable_quantity,
+        temp2.inv_age_91_to_180_days as inv_age_91_to_180_days,
+        temp2.inv_age_181_to_270_days as inv_age_181_to_270_days,
+        temp2.inv_age_271_to_365_days as inv_age_271_to_365_days,
+        temp2.inv_age_365_plus_days as inv_age_365_plus_days,
+        temp2.sum_impressions AS sum_impressions,
+        temp2.sum_clicks AS sum_clicks,
+        temp2.sum_cost AS sum_cost,
+        temp2.sum_attributed_units_ordered AS sum_attributed_units_ordered,
+        temp2.sum_attributed_sales AS sum_attributed_sales,
+        temp2.sum_attributed_sales_same_SKU AS sum_attributed_sales_same_SKU,
+        IFNULL(SUM(dpsatbci.buyer_visits),0) AS sum_buyer_visits
+        FROM
+        (
+        SELECT
+        temp1.csku AS csku,
+        temp1.casin AS casin,
+        temp1.psku AS psku,
+        temp1.sum_quantity AS sum_quantity,
+        temp1.unit_price as unit_price,
+        temp1.afn_fulfillable_quantity as afn_fulfillable_quantity,
+        temp1.afn_inbound_shipped_quantity as afn_inbound_shipped_quantity,
+        temp1.afn_inbound_receiving_quantity as afn_inbound_receiving_quantity,
+        temp1.reserved_fc_transfers as reserved_fc_transfers,
+        temp1.afn_unsellable_quantity as afn_unsellable_quantity,
+        temp1.inv_age_91_to_180_days as inv_age_91_to_180_days,
+        temp1.inv_age_181_to_270_days as inv_age_181_to_270_days,
+        temp1.inv_age_271_to_365_days as inv_age_271_to_365_days,
+        temp1.inv_age_365_plus_days as inv_age_365_plus_days,
+        IFNULL(SUM(odapr.impressions),0) AS sum_impressions,
+        IFNULL(SUM(odapr.clicks),0) AS sum_clicks,
+        IFNULL(SUM(odapr.cost),0) AS sum_cost,
+        IFNULL(SUM(odapr.attributed_units_ordered1d),0) AS sum_attributed_units_ordered,
+        IFNULL(SUM(odapr.attributed_sales1d),0) AS sum_attributed_sales,
+        IFNULL(SUM(odapr.attributed_sales1d_same_SKU),0) AS sum_attributed_sales_same_SKU
+        FROM
+        (SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        IFNULL(pk.psku,pk.csku) AS psku,
+        IFNULL(SUM(ao.quantity),0) AS sum_quantity,
+        IFNULL(IFNULL(SUM(ao.item_price - ao.item_promotion_discount),0) / IFNULL(SUM(ao.quantity),0),0) AS unit_price,
+        IFNULL(mfi.afn_fulfillable_quantity,0) as afn_fulfillable_quantity,
+        IFNULL(mfi.afn_inbound_shipped_quantity,0) as afn_inbound_shipped_quantity,
+        IFNULL(mfi.afn_inbound_receiving_quantity,0) as afn_inbound_receiving_quantity,
+        IFNULL(ri.reserved_fc_transfers,0) as reserved_fc_transfers,
+        IFNULL(mfi.afn_unsellable_quantity,0) as afn_unsellable_quantity,
+        IFNULL(ia.inv_age_91_to_180_days,0) as inv_age_91_to_180_days,
+        IFNULL(ia.inv_age_181_to_270_days,0) as inv_age_181_to_270_days,
+        IFNULL(ia.inv_age_271_to_365_days,0) as inv_age_271_to_365_days,
+        IFNULL(ia.inv_age_365_plus_days,0) as inv_age_365_plus_days
+        FROM
+        (
+        SELECT
+        temp.sku AS csku,
+        mfi.asin AS casin,
+        mpcp.parent_sku AS psku
+        FROM
+        (
+        SELECT
+        sku
+        FROM
+        all_order
+        <where>
+            <if test="shop != null and shop !=''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area !=''">
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </if>
+        </where>
+        UNION
+        SELECT
+        sku
+        FROM
+        manage_fba_inventory
+        <where>
+            <if test="shop != null and shop !=''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area !=''">
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </if>
+        </where>
+        ) temp
+        LEFT JOIN manage_fba_inventory mfi on
+        temp.sku = mfi.sku
+        <if test="shop != null and shop !=''">
+            and mfi.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and mfi.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and mfi.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and mfi.area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        LEFT JOIN
+        msku_parentsku_childrenasin_parentasin mpcp
+        ON
+        temp.sku = mpcp.msku
+        <if test="shop != null and shop !=''">
+            and mpcp.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and mpcp.area = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and mpcp.area in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        <where>
+            <if test="sku != null and sku !=''">
+                AND temp.sku LIKE CONCAT("%",#{sku},"%")
+            </if>
+            <if test="asin != null and asin !=''">
+                AND mfi.asin LIKE CONCAT("%",#{asin},"%")
+            </if>
+            <if test="parentSku != null and parentSku !=''">
+                AND mpcp.parent_sku LIKE CONCAT("%",#{parentSku},"%")
+            </if>
+        </where>
+        GROUP BY
+        temp.sku,
+        mfi.asin
+        ) pk
+        LEFT JOIN
+        <if test="area != null and area !='' and area == 'EU'">
+            ((
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "GB"
+                AND ao.sales_channel = "Amazon.co.uk"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "DE"
+                AND ao.sales_channel = "Amazon.de"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "ES"
+                AND ao.sales_channel = "Amazon.es"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "FR"
+                AND ao.sales_channel = "Amazon.fr"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "IT"
+                AND ao.sales_channel = "Amazon.it"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )) ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+        </if>
+        <if test="area != null and area !='' and area != 'EU'">
+            all_order ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+            AND ao.order_status IN ("Shipped","Shipping","Pending")
+            <if test="type == 'week'">
+                AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+            </if>
+            <if test="type == 'month'">
+                AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+            </if>
+            <if test="shop != null and shop !=''">
+                and ao.shop = #{shop}
+            </if>
+            <if test="area == 'UK'">
+                and area = "GB" and ao.sales_channel = #{salesChannel}
+            </if>
+            <if test="area != 'UK'">
+                and area = #{area} and ao.sales_channel = #{salesChannel}
+            </if>
+        </if>
+        LEFT JOIN (
+        SELECT
+        mfi.sku,
+        mfi.asin,
+        mfi.afn_fulfillable_quantity,
+        mfi.afn_inbound_shipped_quantity,
+        mfi.afn_inbound_receiving_quantity,
+        mfi.afn_unsellable_quantity
+        FROM
+        manage_fba_inventory mfi,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(create_time) tt
+        FROM
+        manage_fba_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        AND `condition` = "New"
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        mfi.sku = tim.sku
+        AND mfi.asin = tim.asin
+        AND mfi.create_time = tim.tt
+        GROUP BY
+        mfi.sku,
+        mfi.asin
+        ) mfi ON pk.csku = mfi.sku
+        AND pk.casin = mfi.asin
+        LEFT JOIN (
+        SELECT
+        ri.sku,
+        ri.asin,
+        ri.reserved_fc_transfers
+        FROM
+        reserved_inventory ri,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(create_time) tt
+        FROM
+        reserved_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        ri.sku = tim.sku
+        AND ri.asin = tim.asin
+        AND ri.create_time = tim.tt
+        GROUP BY
+        ri.sku,
+        ri.asin
+        ) ri ON pk.csku = ri.sku
+        AND pk.casin = ri.asin
+        LEFT JOIN (
+        SELECT
+        ia.sku,
+        ia.asin,
+        ia.inv_age_91_to_180_days,
+        ia.inv_age_181_to_270_days,
+        ia.inv_age_271_to_365_days,
+        ia.inv_age_365_plus_days
+        FROM
+        inventory_age ia,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(creat_time) tt
+        FROM
+        inventory_age
+        WHERE
+        <![CDATA[creat_time < (CURRENT_DATE() + 1)]]>
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        ia.sku = tim.sku
+        AND ia.asin = tim.asin
+        AND ia.snapshot_date = tim.tt
+        GROUP BY
+        ia.sku,
+        ia.asin
+        ) ia ON pk.csku = ia.sku
+        AND pk.casin = ia.asin
+        GROUP BY
+        pk.csku,
+        pk.casin) temp1
+        LEFT JOIN original_data_adv_productads_report odapr ON odapr.sku = temp1.csku
+        AND odapr.asin = temp1.casin
+        <if test="type == 'week'">
+            AND DATE_FORMAT(odapr.date,"%Y%u") = #{date}
+        </if>
+        <if test="type == 'month'">
+            AND DATE_FORMAT(odapr.date,"%Y%c") = #{date}
+        </if>
+        <if test="shop != null and shop !=''">
+            and odapr.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and odapr.area = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and odapr.area in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        temp1.csku,
+        temp1.casin
+        ) temp2
+        LEFT JOIN detail_page_sales_and_traffic_by_child_items dpsatbci ON temp2.casin = dpsatbci.child_asin
+        <if test="type == 'week'">
+            AND DATE_FORMAT(dpsatbci.date,"%Y%u") = #{date}
+        </if>
+        <if test="type == 'month'">
+            AND DATE_FORMAT(dpsatbci.date,"%Y%c") = #{date}
+        </if>
+        <if test="shop != null and shop !=''">
+            and dpsatbci.shop_name = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and dpsatbci.country_code = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and dpsatbci.country_code in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        temp2.csku,
+        temp2.casin
+        ) inventory_data
+        order by csku asc
+    </select>
+    <select id="getParentInventoryAdvertisingReport"
+            resultType="com.weiziplus.springboot.models.DO.ParentBodyInventoryReportDO">
+        SELECT
+        inventory_data.csku AS csku,
+        inventory_data.casin AS casin,
+        inventory_data.psku AS psku,
+        /*父sku*/
+        inventory_data.sum_quantity AS sum_quantity,
+        /*一周销量总和*/
+        ROUND(ifnull(inventory_data.sum_price / inventory_data.sum_quantity,0),2) AS unit_price,
+        /*一周销售单价*/
+        inventory_data.afn_fulfillable_quantity AS afn_fulfillable_quantity,
+        /*manage_fba_inventory表 可售库存*/
+        inventory_data.afn_inbound_shipped_quantity AS afn_inbound_shipped_quantity,
+        /*manage_fba_inventory表 待签收库存*/
+        inventory_data.afn_inbound_receiving_quantity AS afn_inbound_receiving_quantity,
+        /*manage_fba_inventory表 已签收库存*/
+        inventory_data.reserved_fc_transfers AS reserved_fc_transfers,
+        /*reserved_inventory表 转库中库存*/
+        (inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) as total_inventory,
+        /*总库存*/
+        inventory_data.afn_unsellable_quantity AS afn_unsellable_quantity,
+        /*manage_fba_inventory表 不可售库存*/
+        (inventory_data.inv_age_91_to_180_days + inventory_data.inv_age_181_to_270_days +
+        inventory_data.inv_age_271_to_365_days + inventory_data.inv_age_365_plus_days) AS
+        sum_inv_age_90_plus_days,/*inventory_age表 库存大于90天库存*/
+        inventory_data.sum_impressions AS sum_impressions,
+        /*广告一周展现量*/
+        inventory_data.sum_clicks AS sum_clicks,
+        /*广告一周点击量*/
+        inventory_data.sum_cost AS sum_cost,
+        /*一周广告费*/
+        inventory_data.sum_attributed_units_ordered AS sum_attributed_units_ordered,
+        /*一周广告销售量*/
+        inventory_data.sum_attributed_sales AS sum_attributed_sales,
+        /*一周广告销售额*/
+        inventory_data.sum_attributed_sales_same_SKU AS sum_attributed_sales_same_SKU,
+        /*一周广告SKU销售额*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_attributed_sales_same_SKU / inventory_data.sum_attributed_sales),0),2) *
+        100,'%') AS Effective_conversion_rate,
+        /*有效转化率*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_clicks / inventory_data.sum_impressions),0),2) * 100,'%') AS CTR,
+        /*CTR*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_attributed_units_ordered / inventory_data.sum_clicks),0) * 100,2),'%')
+        AS CR,
+        /*CR*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_cost / inventory_data.sum_attributed_sales),0),2) * 100,'%') AS ACoS,
+        /*ACoS*/
+        ROUND(IFNULL((inventory_data.sum_cost / inventory_data.sum_clicks),0),2) AS CPC,
+        /*CPC*/
+        inventory_data.sum_buyer_visits AS sum_buyer_visits,
+        /*访客人数*/
+        CONCAT(ROUND(IFNULL((inventory_data.sum_quantity / inventory_data.sum_buyer_visits),0) *100,2),'%') AS
+        Sales_Views_Conversion_Rate,
+        /*（销量/浏览次数）转化率*/
+        ROUND((inventory_data.sum_quantity / 7),0) AS expected_daily_sales,/*预估每日销量*/
+        ROUND(inventory_data.sum_quantity / 7 * 60,0) AS expected_60_days_sales,/*预计60天销量*/
+        ROUND(((inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) -
+        (inventory_data.sum_quantity / 7 * 60)),0) AS expected_total_inventory_after_60_days,
+        /*预计60日后总库存*/
+        ROUND(IFNULL((inventory_data.afn_fulfillable_quantity + inventory_data.afn_inbound_shipped_quantity +
+        inventory_data.afn_inbound_receiving_quantity + inventory_data.reserved_fc_transfers) /
+        IFNULL(inventory_data.sum_quantity / 7,0),0),0) AS expected_availability,
+        /*预计可售天数*/
+        DATE_ADD(CURDATE(),INTERVAL ROUND(IFNULL((inventory_data.afn_fulfillable_quantity +
+        inventory_data.afn_inbound_shipped_quantity + inventory_data.afn_inbound_receiving_quantity +
+        inventory_data.reserved_fc_transfers) / IFNULL(inventory_data.sum_quantity / 7,0),0)) DAY) AS
+        expected_sale_date,
+        /*预计可售日期*/
+        ROUND(((IFNULL(inventory_data.sum_quantity / 7,0) * 60) - (inventory_data.afn_fulfillable_quantity +
+        inventory_data.afn_inbound_shipped_quantity + inventory_data.afn_inbound_receiving_quantity +
+        inventory_data.reserved_fc_transfers)),0) AS shortage_inventory_estimates,
+        /*紧缺库存预估量*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_clicks / inventory_data.sum_buyer_visits,0) * 100,2),'%') AS
+        clicks_visits_rate,
+        /*Click/访客人数%*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_attributed_sales_same_SKU / (inventory_data.sum_quantity *
+        ifnull(inventory_data.sum_price / inventory_data.sum_quantity,0)),0) * 100,2),'%') AS ads_rev_rate,
+        /*Ads Rev/Rev%*/
+        CONCAT(ROUND(IFNULL(inventory_data.sum_cost / (inventory_data.sum_quantity * ifnull(inventory_data.sum_price /
+        inventory_data.sum_quantity,0)),0) * 100,2),'%') as ads_cost_rate
+        /*Ads Cost/Rev%*/
+        FROM
+        (SELECT
+        temp.csku AS csku,
+        temp.casin AS casin,
+        temp.psku AS psku,
+        SUM(temp.sum_quantity) AS sum_quantity,
+        SUM(temp.sum_price) AS sum_price,
+        SUM(temp.afn_fulfillable_quantity) as afn_fulfillable_quantity,
+        SUM(temp.afn_inbound_shipped_quantity) as afn_inbound_shipped_quantity,
+        SUM(temp.afn_inbound_receiving_quantity) as afn_inbound_receiving_quantity,
+        SUM(temp.reserved_fc_transfers) as reserved_fc_transfers,
+        SUM(temp.afn_unsellable_quantity) as afn_unsellable_quantity,
+        SUM(temp.inv_age_91_to_180_days) as inv_age_91_to_180_days,
+        SUM(temp.inv_age_181_to_270_days) as inv_age_181_to_270_days,
+        SUM(temp.inv_age_271_to_365_days) as inv_age_271_to_365_days,
+        SUM(temp.inv_age_365_plus_days) as inv_age_365_plus_days,
+        SUM(temp.sum_impressions) AS sum_impressions,
+        SUM(temp.sum_clicks) AS sum_clicks,
+        SUM(temp.sum_cost) AS sum_cost,
+        SUM(temp.sum_attributed_units_ordered) AS sum_attributed_units_ordered,
+        SUM(temp.sum_attributed_sales) AS sum_attributed_sales,
+        SUM(temp.sum_attributed_sales_same_SKU) AS sum_attributed_sales_same_SKU,
+        SUM(temp.sum_buyer_visits) AS sum_buyer_visits
+        FROM
+        (
+        SELECT
+        temp2.csku AS csku,
+        temp2.casin AS casin,
+        temp2.psku AS psku,
+        temp2.sum_quantity AS sum_quantity,
+        temp2.sum_price as sum_price,
+        temp2.afn_fulfillable_quantity as afn_fulfillable_quantity,
+        temp2.afn_inbound_shipped_quantity as afn_inbound_shipped_quantity,
+        temp2.afn_inbound_receiving_quantity as afn_inbound_receiving_quantity,
+        temp2.reserved_fc_transfers as reserved_fc_transfers,
+        temp2.afn_unsellable_quantity as afn_unsellable_quantity,
+        temp2.inv_age_91_to_180_days as inv_age_91_to_180_days,
+        temp2.inv_age_181_to_270_days as inv_age_181_to_270_days,
+        temp2.inv_age_271_to_365_days as inv_age_271_to_365_days,
+        temp2.inv_age_365_plus_days as inv_age_365_plus_days,
+        temp2.sum_impressions AS sum_impressions,
+        temp2.sum_clicks AS sum_clicks,
+        temp2.sum_cost AS sum_cost,
+        temp2.sum_attributed_units_ordered AS sum_attributed_units_ordered,
+        temp2.sum_attributed_sales AS sum_attributed_sales,
+        temp2.sum_attributed_sales_same_SKU AS sum_attributed_sales_same_SKU,
+        IFNULL(SUM(dpsatbci.buyer_visits),0) AS sum_buyer_visits
+        FROM
+        (
+        SELECT
+        temp1.csku AS csku,
+        temp1.casin AS casin,
+        temp1.psku AS psku,
+        temp1.sum_quantity AS sum_quantity,
+        temp1.sum_price as sum_price,
+        temp1.afn_fulfillable_quantity as afn_fulfillable_quantity,
+        temp1.afn_inbound_shipped_quantity as afn_inbound_shipped_quantity,
+        temp1.afn_inbound_receiving_quantity as afn_inbound_receiving_quantity,
+        temp1.reserved_fc_transfers as reserved_fc_transfers,
+        temp1.afn_unsellable_quantity as afn_unsellable_quantity,
+        temp1.inv_age_91_to_180_days as inv_age_91_to_180_days,
+        temp1.inv_age_181_to_270_days as inv_age_181_to_270_days,
+        temp1.inv_age_271_to_365_days as inv_age_271_to_365_days,
+        temp1.inv_age_365_plus_days as inv_age_365_plus_days,
+        IFNULL(SUM(odapr.impressions),0) AS sum_impressions,
+        IFNULL(SUM(odapr.clicks),0) AS sum_clicks,
+        IFNULL(SUM(odapr.cost),0) AS sum_cost,
+        IFNULL(SUM(odapr.attributed_units_ordered1d),0) AS sum_attributed_units_ordered,
+        IFNULL(SUM(odapr.attributed_sales1d),0) AS sum_attributed_sales,
+        IFNULL(SUM(odapr.attributed_sales1d_same_SKU),0) AS sum_attributed_sales_same_SKU
+        FROM
+        (SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        IFNULL(pk.psku,pk.csku) AS psku,
+        IFNULL(SUM(ao.quantity),0) AS sum_quantity,
+        IFNULL(SUM(ao.item_price - ao.item_promotion_discount),0)AS sum_price,
+        IFNULL(mfi.afn_fulfillable_quantity,0) as afn_fulfillable_quantity,
+        IFNULL(mfi.afn_inbound_shipped_quantity,0) as afn_inbound_shipped_quantity,
+        IFNULL(mfi.afn_inbound_receiving_quantity,0) as afn_inbound_receiving_quantity,
+        IFNULL(ri.reserved_fc_transfers,0) as reserved_fc_transfers,
+        IFNULL(mfi.afn_unsellable_quantity,0) as afn_unsellable_quantity,
+        IFNULL(ia.inv_age_91_to_180_days,0) as inv_age_91_to_180_days,
+        IFNULL(ia.inv_age_181_to_270_days,0) as inv_age_181_to_270_days,
+        IFNULL(ia.inv_age_271_to_365_days,0) as inv_age_271_to_365_days,
+        IFNULL(ia.inv_age_365_plus_days,0) as inv_age_365_plus_days
+        FROM
+        (
+        SELECT
+        temp.sku AS csku,
+        mfi.asin AS casin,
+        mpcp.parent_sku AS psku
+        FROM
+        (
+        SELECT
+        sku
+        FROM
+        all_order
+        <where>
+            <if test="shop != null and shop !=''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area !=''">
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </if>
+        </where>
+        UNION
+        SELECT
+        sku
+        FROM
+        manage_fba_inventory
+        <where>
+            <if test="shop != null and shop !=''">
+                and shop = #{shop}
+            </if>
+            <if test="area != null and area !=''">
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </if>
+        </where>
+        ) temp
+        LEFT JOIN manage_fba_inventory mfi on
+        temp.sku = mfi.sku
+        <if test="shop != null and shop !=''">
+            and mfi.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and mfi.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and mfi.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and mfi.area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        LEFT JOIN
+        msku_parentsku_childrenasin_parentasin mpcp
+        ON
+        temp.sku = mpcp.msku
+        <if test="shop != null and shop !=''">
+            and mpcp.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and mpcp.area = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and mpcp.area in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        <where>
+            <if test="sku != null and sku !=''">
+                AND temp.sku LIKE CONCAT("%",#{sku},"%")
+            </if>
+            <if test="asin != null and asin !=''">
+                AND mfi.asin LIKE CONCAT("%",#{asin},"%")
+            </if>
+            <if test="parentSku != null and parentSku !=''">
+                AND mpcp.parent_sku LIKE CONCAT("%",#{parentSku},"%")
+            </if>
+        </where>
+        GROUP BY
+        temp.sku,
+        mfi.asin
+        ) pk
+        LEFT JOIN
+        <if test="area != null and area !='' and area == 'EU'">
+            ((
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "GB"
+                AND ao.sales_channel = "Amazon.co.uk"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "DE"
+                AND ao.sales_channel = "Amazon.de"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "ES"
+                AND ao.sales_channel = "Amazon.es"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "FR"
+                AND ao.sales_channel = "Amazon.fr"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                <if test="shop != null and shop !=''">
+                    and ao.shop = #{shop}
+                </if>
+                AND ao.area = "IT"
+                AND ao.sales_channel = "Amazon.it"
+                <if test="type == 'week'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+                </if>
+                <if test="type == 'month'">
+                    AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+                </if>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )) ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+        </if>
+        <if test="area != null and area !='' and area != 'EU'">
+            all_order ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+            AND ao.order_status IN ("Shipped","Shipping","Pending")
+            <if test="type == 'week'">
+                AND DATE_FORMAT(ao.purchase_date,"%Y%u") = #{date}
+            </if>
+            <if test="type == 'month'">
+                AND DATE_FORMAT(ao.purchase_date,"%Y%c") = #{date}
+            </if>
+            <if test="shop != null and shop !=''">
+                and ao.shop = #{shop}
+            </if>
+            <if test="area == 'UK'">
+                and area = "GB" and ao.sales_channel = #{salesChannel}
+            </if>
+            <if test="area != 'UK'">
+                and area = #{area} and ao.sales_channel = #{salesChannel}
+            </if>
+        </if>
+        LEFT JOIN (
+        SELECT
+        mfi.sku,
+        mfi.asin,
+        mfi.afn_fulfillable_quantity,
+        mfi.afn_inbound_shipped_quantity,
+        mfi.afn_inbound_receiving_quantity,
+        mfi.afn_unsellable_quantity
+        FROM
+        manage_fba_inventory mfi,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(create_time) tt
+        FROM
+        manage_fba_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        AND `condition` = "New"
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        mfi.sku = tim.sku
+        AND mfi.asin = tim.asin
+        AND mfi.create_time = tim.tt
+        GROUP BY
+        mfi.sku,
+        mfi.asin
+        ) mfi ON pk.csku = mfi.sku
+        AND pk.casin = mfi.asin
+        LEFT JOIN (
+        SELECT
+        ri.sku,
+        ri.asin,
+        ri.reserved_fc_transfers
+        FROM
+        reserved_inventory ri,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(create_time) tt
+        FROM
+        reserved_inventory
+        WHERE
+        <![CDATA[create_time < (CURRENT_DATE() + 1)]]>
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        ri.sku = tim.sku
+        AND ri.asin = tim.asin
+        AND ri.create_time = tim.tt
+        GROUP BY
+        ri.sku,
+        ri.asin
+        ) ri ON pk.csku = ri.sku
+        AND pk.casin = ri.asin
+        LEFT JOIN (
+        SELECT
+        ia.sku,
+        ia.asin,
+        ia.inv_age_91_to_180_days,
+        ia.inv_age_181_to_270_days,
+        ia.inv_age_271_to_365_days,
+        ia.inv_age_365_plus_days
+        FROM
+        inventory_age ia,
+        (
+        SELECT
+        sku,
+        asin,
+        MAX(snapshot_date) tt
+        FROM
+        inventory_age
+        WHERE
+        <![CDATA[snapshot_date < (CURRENT_DATE() + 1)]]>
+        <if test="shop != null and shop !=''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        sku,
+        asin
+        ) tim
+        WHERE
+        ia.sku = tim.sku
+        AND ia.asin = tim.asin
+        AND ia.snapshot_date = tim.tt
+        GROUP BY
+        ia.sku,
+        ia.asin
+        ) ia ON pk.csku = ia.sku
+        AND pk.casin = ia.asin
+        GROUP BY
+        pk.csku,
+        pk.casin) temp1
+        LEFT JOIN original_data_adv_productads_report odapr ON odapr.sku = temp1.csku
+        AND odapr.asin = temp1.casin
+        <if test="type == 'week'">
+            AND DATE_FORMAT(odapr.date,"%Y%u") = #{date}
+        </if>
+        <if test="type == 'month'">
+            AND DATE_FORMAT(odapr.date,"%Y%c") = #{date}
+        </if>
+        <if test="shop != null and shop !=''">
+            and odapr.shop = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and odapr.area = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and odapr.area in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        temp1.csku,
+        temp1.casin
+        ) temp2
+        LEFT JOIN detail_page_sales_and_traffic_by_child_items dpsatbci ON temp2.casin = dpsatbci.child_asin
+        <if test="type == 'week'">
+            AND DATE_FORMAT(dpsatbci.date,"%Y%u") = #{date}
+        </if>
+        <if test="type == 'month'">
+            AND DATE_FORMAT(dpsatbci.date,"%Y%c") = #{date}
+        </if>
+        <if test="shop != null and shop !=''">
+            and dpsatbci.shop_name = #{shop}
+        </if>
+        <if test="area != null and area !=''">
+            <if test="area != 'EU'">
+                and dpsatbci.country_code = #{area}
+            </if>
+            <if test="area == 'EU'">
+                and dpsatbci.country_code in ("UK","DE","IT","FR","ES")
+            </if>
+        </if>
+        GROUP BY
+        temp2.csku,
+        temp2.casin
+        ) temp
+        GROUP BY temp.psku
+        ) inventory_data
+        order by psku asc
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*)
+        from
+        (
+        SELECT
+        mpcp.parent_sku AS psku,
+        temp.sku AS csku,
+        mfi.asin AS casin
+        FROM
+        (
+        SELECT
+        sku
+        FROM
+        all_order
+        UNION
+        SELECT
+        sku
+        FROM
+        manage_fba_inventory
+        ) temp,manage_fba_inventory mfi,msku_parentsku_childrenasin_parentasin mpcp
+        <where>
+            temp.sku = mfi.sku
+            <if test="shop != null and shop !=''">
+                and mfi.shop = #{shop}
+                and mpcp.shop = #{shop}
+            </if>
+            <if test="area != null and area !=''">
+                and mfi.area = #{area}
+                and mpcp.area = #{area}
+            </if>
+            and temp.sku = mpcp.msku
+            <if test="sku != null and sku !=''">
+                AND temp.sku LIKE CONCAT("%",#{sku},"%")
+            </if>
+            <if test="asin != null and asin !=''">
+                AND mfi.asin LIKE CONCAT("%",#{asin},"%")
+            </if>
+            <if test="parentSku != null and parentSku !=''">
+                AND mpcp.parent_sku LIKE CONCAT("%",#{parentSku},"%")
+            </if>
+        </where>
+        GROUP BY
+        temp.sku,mfi.asin
+        ) a
+    </select>
+    <select id="getAllSkuAsinPsku" resultType="com.weiziplus.springboot.models.DO.SkuAsinPskuDO">
+        select sku,asin,psku from sku_asin_psku
+    </select>
+    <select id="getQuantityAndUnitPrice" resultType="com.weiziplus.springboot.models.DO.QuantityAndUnitPriceDO">
+        SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        IFNULL(pk.psku, pk.csku) AS psku,
+        pk.shop AS shop,
+        pk.area AS area,
+        IFNULL(SUM(ao.quantity), 0) AS sum_quantity,
+        ROUND(IFNULL(SUM(ROUND(ao.item_price,2) - ROUND(ao.item_promotion_discount,2)),0),2) as sum_sales_amount,
+        ROUND(IFNULL(IFNULL(SUM(ROUND(ao.item_price,2) - ROUND(ao.item_promotion_discount,2)),0) /
+        IFNULL(SUM(ao.quantity), 0),0),2) AS unit_price,
+        ROUND((IFNULL(SUM(ROUND(ao.quantity,0)), 0) / 7),0) AS expected_daily_sales,
+        /*预估每日销量*/
+        ROUND(IFNULL(SUM(ROUND(ao.quantity,0)), 0) / 7 * 60,0) AS expected_60_days_sales
+        /*预计60天销量*/
+        FROM
+        (
+        SELECT
+        csku AS csku,
+        casin AS casin,
+        psku AS psku,
+        shop AS shop,
+        area AS area
+        FROM
+        sku_asin_psku
+        <where>
+            shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </where>
+        GROUP BY
+        csku,
+        casin
+        ) pk
+        LEFT JOIN
+        <if test="area == 'EU'">
+            ((
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                and ao.shop = #{shop}
+                AND ao.area = "GB"
+                AND ao.sales_channel = "Amazon.co.uk"
+                <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+                AND ao.order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                and ao.shop = #{shop}
+                AND ao.area = "DE"
+                AND ao.sales_channel = "Amazon.de"
+                <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+                AND ao.order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                and ao.shop = #{shop}
+                AND ao.area = "ES"
+                AND ao.sales_channel = "Amazon.es"
+                <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+                AND ao.order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                and ao.shop = #{shop}
+                AND ao.area = "FR"
+                AND ao.sales_channel = "Amazon.fr"
+                <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )
+            UNION ALL
+            (
+            SELECT
+            shop,seller_id,area,purchase_date,order_status,sales_channel,sku,asin,quantity,item_price,item_promotion_discount
+            FROM
+            all_order ao
+            <where>
+                and ao.shop = #{shop}
+                AND ao.area = "IT"
+                AND ao.sales_channel = "Amazon.it"
+                <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+                AND order_status IN (
+                "Shipped",
+                "Shipping",
+                "Pending"
+                )
+            </where>
+            )) ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+        </if>
+        <if test="area != 'EU'">
+            all_order ao ON ao.sku = pk.csku
+            AND ao.asin = pk.casin
+            AND ao.order_status IN ("Shipped","Shipping","Pending")
+            <![CDATA[and ao.purchase_date <= #{endDate,jdbcType=VARCHAR}
+                and ao.purchase_date >= #{startDate,jdbcType=VARCHAR}]]>
+            and ao.shop = #{shop}
+            <if test="area == 'UK'">
+                and ao.area = "GB" and ao.sales_channel = #{salesChannel}
+            </if>
+            <if test="area != 'UK'">
+                and ao.area = #{area} and ao.sales_channel = #{salesChannel}
+            </if>
+        </if>
+        <if test="flag == 1">
+            GROUP BY
+            pk.csku,
+            pk.casin
+            order by pk.csku
+        </if>
+        <if test="flag == 2">
+            GROUP BY
+            pk.psku
+            order by pk.psku
+        </if>
+    </select>
+    <select id="getInventory" resultType="com.weiziplus.springboot.models.DO.InventoryDO">
+        SELECT
+        <if test="flag == 1">
+            pk.csku AS csku,
+            pk.casin AS casin,
+            pk.psku AS psku,
+            pk.shop AS shop,
+            pk.area AS area,
+            IFNULL(mfi.afn_fulfillable_quantity,0) AS afn_fulfillable_quantity,
+            IFNULL(mfi.afn_inbound_shipped_quantity,0) AS afn_inbound_shipped_quantity,
+            IFNULL(mfi.afn_inbound_receiving_quantity,0) AS afn_inbound_receiving_quantity,
+            IFNULL(ri.reserved_fc_transfers, 0) AS reserved_fc_transfers,
+            (IFNULL(mfi.afn_fulfillable_quantity,0) + IFNULL(mfi.afn_inbound_shipped_quantity,0) + IFNULL(mfi.afn_inbound_receiving_quantity,0) + IFNULL(ri.reserved_fc_transfers, 0)) AS total_inventory,
+            /*总库存*/
+            IFNULL(mfi.afn_unsellable_quantity,0) AS afn_unsellable_quantity,(IFNULL(ia.inv_age_91_to_180_days,0) + IFNULL(ia.inv_age_181_to_270_days,0) + IFNULL(ia.inv_age_271_to_365_days,0) + IFNULL(ia.inv_age_365_plus_days, 0)) AS sum_inv_age_90_plus_days
+            /*inventory_age表 库存大于90天库存*/
+            FROM
+            (
+            SELECT
+            csku AS csku,
+            casin AS casin,
+            psku AS psku,
+            shop AS shop,
+            area AS area
+            FROM
+            sku_asin_psku
+            <where>
+                shop = #{shop,jdbcType=VARCHAR}
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area,jdbcType=VARCHAR}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </where>
+            GROUP BY
+            csku,
+            casin
+            ) pk
+            LEFT JOIN latest_manage_fba_inventory mfi ON pk.csku = mfi.sku
+            AND pk.casin = mfi.asin
+            and mfi.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and mfi.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and mfi.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and mfi.area in ("GB","DE","IT","FR","ES")
+            </if>
+            LEFT JOIN latest_reserved_inventory ri ON pk.csku = ri.sku
+            AND pk.casin = ri.asin
+
+            and ri.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and ri.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and ri.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and ri.area in ("GB","DE","IT","FR","ES")
+            </if>
+
+            LEFT JOIN latest_inventory_age ia ON pk.csku = ia.sku
+            AND pk.casin = ia.asin
+            and ia.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and ia.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and ia.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and ia.area in ("GB","DE","IT","FR","ES")
+            </if>
+            GROUP BY
+            pk.csku,
+            pk.casin
+            order by pk.csku
+        </if>
+        <if test="flag == 2">
+            inventory.csku AS csku,
+            inventory.casin AS casin,
+            inventory.psku AS psku,
+            SUM(inventory.afn_fulfillable_quantity) AS afn_fulfillable_quantity,
+            SUM(inventory.afn_inbound_shipped_quantity) AS afn_inbound_shipped_quantity,
+            SUM(inventory.afn_inbound_receiving_quantity) AS afn_inbound_receiving_quantity,
+            SUM(inventory.reserved_fc_transfers) AS reserved_fc_transfers,
+            SUM(inventory.afn_fulfillable_quantity) + SUM(inventory.afn_inbound_shipped_quantity) + SUM(inventory.afn_inbound_receiving_quantity) + SUM(inventory.reserved_fc_transfers) AS total_inventory,
+            /*总库存*/
+            SUM(inventory.afn_unsellable_quantity) AS afn_unsellable_quantity,
+            SUM(inventory.sum_inv_age_90_plus_days) AS sum_inv_age_90_plus_days
+            /*inventory_age表 库存大于90天库存*/
+            from
+            (
+            select
+            pk.csku AS csku,
+            pk.casin AS casin,
+            pk.psku AS psku,
+            IFNULL(mfi.afn_fulfillable_quantity,0) AS afn_fulfillable_quantity,
+            IFNULL(mfi.afn_inbound_shipped_quantity,0) AS afn_inbound_shipped_quantity,
+            IFNULL(mfi.afn_inbound_receiving_quantity,0) AS afn_inbound_receiving_quantity,
+            IFNULL(ri.reserved_fc_transfers, 0) AS reserved_fc_transfers,
+            (IFNULL(mfi.afn_fulfillable_quantity,0) + IFNULL(mfi.afn_inbound_shipped_quantity,0) + IFNULL(mfi.afn_inbound_receiving_quantity,0) + IFNULL(ri.reserved_fc_transfers, 0)) AS total_inventory,
+            /*总库存*/
+            IFNULL(mfi.afn_unsellable_quantity,0) AS afn_unsellable_quantity,
+            (IFNULL(ia.inv_age_91_to_180_days,0) + IFNULL(ia.inv_age_181_to_270_days,0) + IFNULL(ia.inv_age_271_to_365_days,0) + IFNULL(ia.inv_age_365_plus_days, 0)) AS sum_inv_age_90_plus_days
+            /*inventory_age表 库存大于90天库存*/
+            FROM
+            (
+            SELECT
+            csku AS csku,
+            casin AS casin,
+            psku AS psku,
+            shop AS shop,
+            area AS area
+            FROM
+            sku_asin_psku
+            <where>
+                shop = #{shop,jdbcType=VARCHAR}
+                <if test="area != 'EU'">
+                    <if test="area == 'UK'">
+                        and area = "GB"
+                    </if>
+                    <if test="area != 'UK'">
+                        and area = #{area,jdbcType=VARCHAR}
+                    </if>
+                </if>
+                <if test="area == 'EU'">
+                    and area in ("GB","DE","IT","FR","ES")
+                </if>
+            </where>
+            GROUP BY
+            csku,
+            casin
+            ) pk
+            LEFT JOIN latest_manage_fba_inventory mfi ON pk.csku = mfi.sku
+            AND pk.casin = mfi.asin
+            and mfi.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and mfi.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and mfi.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and mfi.area in ("GB","DE","IT","FR","ES")
+            </if>
+            LEFT JOIN latest_reserved_inventory ri ON pk.csku = ri.sku
+            AND pk.casin = ri.asin
+
+            and ri.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and ri.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and ri.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and ri.area in ("GB","DE","IT","FR","ES")
+            </if>
+
+            LEFT JOIN latest_inventory_age ia ON pk.csku = ia.sku
+            AND pk.casin = ia.asin
+            and ia.shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and ia.area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and ia.area = #{area}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and ia.area in ("GB","DE","IT","FR","ES")
+            </if>
+            GROUP BY
+            pk.csku,pk.casin
+            ) inventory
+            group by inventory.psku
+            order by inventory.psku
+        </if>
+    </select>
+    <select id="getAdvProductData" resultType="com.weiziplus.springboot.models.DO.AdvProductDataDO">
+        SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        pk.psku AS psku,
+        pk.shop AS shop,
+        pk.area AS area,
+        IFNULL(SUM(odapr.impressions), 0) AS sum_impressions,
+        IFNULL(SUM(odapr.clicks), 0) AS sum_clicks,
+        IFNULL(SUM(odapr.cost), 0) AS sum_cost,
+        IFNULL(SUM(odapr.attributed_units_ordered1d),0) AS sum_attributed_units_ordered,
+        IFNULL(SUM(odapr.attributed_sales1d),0) AS sum_attributed_sales,
+        IFNULL(SUM(odapr.attributed_sales1d_same_SKU),0) AS sum_attributed_sales_same_SKU,
+        CONCAT(ROUND(IFNULL((IFNULL(SUM(odapr.attributed_sales1d_same_SKU),0) / IFNULL(SUM(odapr.attributed_sales1d),0)),0) * 100,2),'%') AS Effective_conversion_rate,
+        /*有效转化率*/
+        CONCAT(ROUND(IFNULL((IFNULL(SUM(odapr.clicks), 0) / IFNULL(SUM(odapr.impressions), 0)),0) * 100,2),'%') AS CTR,
+        /*CTR*/
+        CONCAT(ROUND(IFNULL((IFNULL(SUM(odapr.attributed_units_ordered1d),0) / IFNULL(SUM(odapr.clicks), 0)),0) * 100,2),'%') AS CR,
+        /*CR*/
+        CONCAT(ROUND(IFNULL((IFNULL(SUM(odapr.cost), 0) / IFNULL(SUM(odapr.attributed_sales1d),0)),0) * 100,2),'%') AS ACoS,
+        /*ACoS*/
+        ROUND(IFNULL((IFNULL(SUM(odapr.cost), 0) / IFNULL(SUM(odapr.clicks), 0)),0),2) AS CPC
+        FROM
+        (
+        SELECT
+        csku AS csku,
+        casin AS casin,
+        psku AS psku,
+        shop AS shop,
+        area AS area
+        FROM
+        sku_asin_psku
+        <where>
+            shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area,jdbcType=VARCHAR}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </where>
+        GROUP BY
+        csku,
+        casin
+        ) pk
+        LEFT JOIN original_data_adv_productads_report odapr ON odapr.sku = pk.csku
+        AND odapr.asin = pk.casin
+        <![CDATA[and odapr.date <= #{endDate,jdbcType=VARCHAR}
+                and odapr.date >= #{startDate,jdbcType=VARCHAR}]]>
+        and odapr.shop = #{shop}
+        <if test="area != 'EU'">
+            and odapr.area = #{area}
+        </if>
+        <if test="area == 'EU'">
+            and odapr.area in ("UK","DE","IT","FR","ES")
+        </if>
+        <if test="flag == 1">
+            GROUP BY
+            pk.csku,
+            pk.casin
+            order by pk.csku
+        </if>
+        <if test="flag == 2">
+            GROUP BY
+            pk.psku
+            order by pk.psku
+        </if>
+    </select>
+    <select id="getBuyerVisits" resultType="com.weiziplus.springboot.models.DO.BuyerVisitsDO">
+        SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        pk.psku AS psku,
+        pk.shop AS shop,
+        pk.area AS area,
+        IFNULL(SUM(dpsatbci.buyer_visits),0) AS sum_buyer_visits
+        FROM
+        (
+        SELECT
+        csku AS csku,
+        casin AS casin,
+        psku AS psku,
+        shop AS shop,
+        area AS area
+        FROM
+        sku_asin_psku
+        <where>
+            shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area,jdbcType=VARCHAR}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </where>
+        GROUP BY
+        csku,
+        casin
+        ) pk
+        LEFT JOIN detail_page_sales_and_traffic_by_child_items dpsatbci
+        ON pk.casin = dpsatbci.child_asin
+        <![CDATA[and dpsatbci.date <= #{endDate,jdbcType=VARCHAR}
+                and dpsatbci.date >= #{startDate,jdbcType=VARCHAR}]]>
+        and dpsatbci.shop_name = #{shop}
+        <if test="area != 'EU'">
+            and dpsatbci.country_code = #{area}
+        </if>
+        <if test="area == 'EU'">
+            and dpsatbci.country_code in ("UK","DE","IT","FR","ES")
+        </if>
+        <if test="flag == 1">
+            GROUP BY
+            pk.csku,
+            pk.casin
+            order by pk.csku
+        </if>
+        <if test="flag == 2">
+            GROUP BY
+            pk.psku
+            order by pk.psku
+        </if>
+    </select>
+    <select id="getLightningDeals" resultType="com.weiziplus.springboot.models.DO.LightningDealsDataDO">
+        SELECT
+        pk.csku AS csku,
+        pk.casin AS casin,
+        pk.psku AS psku,
+        pk.shop AS shop,
+        pk.area AS area,
+        kldd.week_of_year as weekOfYear
+        FROM
+        (
+        SELECT
+        csku AS csku,
+        casin AS casin,
+        psku AS psku,
+        shop AS shop,
+        area AS area
+        FROM
+        sku_asin_psku
+        <where>
+            shop = #{shop,jdbcType=VARCHAR}
+            <if test="area != 'EU'">
+                <if test="area == 'UK'">
+                    and area = "GB"
+                </if>
+                <if test="area != 'UK'">
+                    and area = #{area,jdbcType=VARCHAR}
+                </if>
+            </if>
+            <if test="area == 'EU'">
+                and area in ("GB","DE","IT","FR","ES")
+            </if>
+        </where>
+        GROUP BY
+        csku,
+        casin
+        ) pk
+        LEFT JOIN
+        keepa_lightning_deals_data kldd ON
+        kldd.asin = pk.casin
+        <![CDATA[and kldd.last_update <= #{endDate,jdbcType=VARCHAR}
+        and kldd.last_update >= #{startDate,jdbcType=VARCHAR}]]>
+        <if test="area != 'EU'">
+            and kldd.domain_id = #{domainId}
+        </if>
+        <if test="area == 'EU'">
+            and kldd.domain_id in (2,3,4,8,9)
+        </if>
+        <if test="flag == 1">
+            GROUP BY
+            pk.csku,
+            pk.casin
+            order by pk.csku
+        </if>
+        <if test="flag == 2">
+            GROUP BY
+            pk.psku
+            order by pk.psku
+        </if>
+    </select>
+
+</mapper>

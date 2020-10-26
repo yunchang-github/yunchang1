@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.InventorySKUMapBedLinkMapper">
+
+    <select id="getList" resultType="com.weiziplus.springboot.models.InventorySkuMapBedLink">
+        SELECT * FROM inventory_sku_map_bed_link where 1 = 1
+            <if test="null != inventorySku and '' != inventorySku">
+               and inventory_sku = #{inventorySku}
+            </if>
+        ORDER BY id
+    </select>
+
+    <select id="getOneInfoByCondition" resultType="com.weiziplus.springboot.models.InventorySkuMapBedLink">
+		select * from inventory_sku_map_bed_link where inventory_sku = #{inventorySku} order by id
+    </select>
+
+    <select id="getLinkBySku" resultType="String">
+        select link from inventory_sku_map_bed_link ismbl where ismbl.inventory_sku = (SELECT local_sku from local_sku_to_msku where msku = #{sku,jdbcType=VARCHAR}) limit 0,1
+    </select>
+
+</mapper>

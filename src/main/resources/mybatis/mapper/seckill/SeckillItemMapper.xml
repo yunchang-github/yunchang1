@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.seckill.SeckillItemMapper">
+    <delete id="deleteItemBySeckillId">
+		DELETE FROM seckill_item
+		WHERE seckill_id = #{seckillId}
+	</delete>
+    <select id="getItemListBySeckillId" resultType="com.weiziplus.springboot.models.SeckillItem">
+		SELECT *
+		FROM seckill_item
+		WHERE seckill_id = #{seckillId}
+    </select>
+</mapper>

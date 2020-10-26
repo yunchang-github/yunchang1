@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.scheduled.FbaCustomerReturnsMapper">
+    <select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(return_date) AS returnDate
+        FROM fba_customer_returns
+        where 1 = 1
+        <if test="shop != null and shop !=''">
+            and shop =#{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area =#{area}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.LogisticsTimeLimitationMapper">
+    <select id="getOneInfoByMode"
+            resultType="com.weiziplus.springboot.models.LogisticsTimeLimitation">
+        SELECT *
+        FROM logistics_time_limitation
+        WHERE logistics_mode = #{mode}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.LogisticsTimeLimitation">
+        SELECT *
+        FROM logistics_time_limitation
+        <where>
+            <if test="null != code and '' != code">
+                POSITION(#{logistics_mode_code} IN code)
+            </if>
+            <if test="null != mode and '' != mode">
+                POSITION(#{logistics_mode} IN code)
+            </if>
+            <if test="null != type and '' != type">
+                POSITION(#{logistics_type} IN type)
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+</mapper>

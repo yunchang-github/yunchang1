@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.MergeAsinMapper">
+    <select id="getOneInfoByShopAndAreaAndAsin"
+            resultType="com.weiziplus.springboot.models.MergeAsin">
+        SELECT *
+        FROM merge_asin
+        WHERE shop = #{shop} AND area = #{area} AND asin = #{asin}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.MergeAsin">
+        SELECT *
+        FROM merge_asin
+        <where>
+            <if test="null != shop and '' != shop">
+                shop = #{shop}
+            </if>
+            <if test="null != area and '' != area">
+                area = #{area}
+            </if>
+            <if test="null != asin and '' != asin">
+                asin = #{asin}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+</mapper>

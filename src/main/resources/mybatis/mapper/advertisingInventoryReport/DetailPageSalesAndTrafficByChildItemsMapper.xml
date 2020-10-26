@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.DetailPageSalesAndTrafficByChildItemsMapper">
+    <resultMap id="BaseResultMap" type="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="shop_name" property="shopName" jdbcType="VARCHAR"/>
+        <result column="country_code" property="countryCode" jdbcType="VARCHAR"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_asin" property="parentAsin" jdbcType="VARCHAR"/>
+        <result column="child_asin" property="childAsin" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="buyer_visits" property="buyerVisits" jdbcType="INTEGER"/>
+        <result column="buyer_visits_percentage" property="buyerVisitsPercentage" jdbcType="DECIMAL"/>
+        <result column="page_views" property="pageViews" jdbcType="INTEGER"/>
+        <result column="page_views_percentage" property="pageViewsPercentage" jdbcType="DECIMAL"/>
+        <result column="purchase_button_win_rate" property="purchaseButtonWinRate" jdbcType="DECIMAL"/>
+        <result column="ordered_items_number" property="orderedItemsNumber" jdbcType="INTEGER"/>
+        <result column="order_quantity_B2B" property="orderQuantityB2b" jdbcType="INTEGER"/>
+        <result column="order_items_conversion_rate" property="orderItemsConversionRate" jdbcType="DECIMAL"/>
+        <result column="items_conversion_rate_B2B" property="itemsConversionRateB2b" jdbcType="DECIMAL"/>
+        <result column="ordered_item_sales" property="orderedItemSales" jdbcType="VARCHAR"/>
+        <result column="ordered_item_sales_B2B" property="orderedItemSalesB2b" jdbcType="VARCHAR"/>
+        <result column="order_product_categorys" property="orderProductCategorys" jdbcType="INTEGER"/>
+        <result column="total_order_items_B2B" property="totalOrderItemsB2b" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, shop_name, country_code, date, create_time, parent_asin, child_asin, product_name,
+    buyer_visits, buyer_visits_percentage, page_views, page_views_percentage, purchase_button_win_rate, 
+    ordered_items_number, order_quantity_B2B, order_items_conversion_rate, items_conversion_rate_B2B, 
+    ordered_item_sales, ordered_item_sales_B2B, order_product_categorys, total_order_items_B2B
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from detail_page_sales_and_traffic_by_child_items
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from detail_page_sales_and_traffic_by_child_items
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+    insert into detail_page_sales_and_traffic_by_child_items (id, shop_name, country_code,
+      date, create_time, parent_asin, 
+      child_asin, product_name, buyer_visits, 
+      buyer_visits_percentage, page_views, page_views_percentage, 
+      purchase_button_win_rate, ordered_items_number, 
+      order_quantity_B2B, order_items_conversion_rate, 
+      items_conversion_rate_B2B, ordered_item_sales, 
+      ordered_item_sales_B2B, order_product_categorys, 
+      total_order_items_B2B)
+    values (#{id,jdbcType=BIGINT}, #{shopName,jdbcType=VARCHAR}, #{countryCode,jdbcType=VARCHAR},
+      #{date,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{parentAsin,jdbcType=VARCHAR}, 
+      #{childAsin,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, #{buyerVisits,jdbcType=INTEGER}, 
+      #{buyerVisitsPercentage,jdbcType=DECIMAL}, #{pageViews,jdbcType=INTEGER}, #{pageViewsPercentage,jdbcType=DECIMAL}, 
+      #{purchaseButtonWinRate,jdbcType=DECIMAL}, #{orderedItemsNumber,jdbcType=INTEGER}, 
+      #{orderQuantityB2b,jdbcType=INTEGER}, #{orderItemsConversionRate,jdbcType=DECIMAL}, 
+      #{itemsConversionRateB2b,jdbcType=DECIMAL}, #{orderedItemSales,jdbcType=VARCHAR}, 
+      #{orderedItemSalesB2b,jdbcType=VARCHAR}, #{orderProductCategorys,jdbcType=INTEGER}, 
+      #{totalOrderItemsB2b,jdbcType=INTEGER})
+  </insert>
+    <insert id="insertSelective" parameterType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+        insert into detail_page_sales_and_traffic_by_child_items
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="shopName != null">
+                shop_name,
+            </if>
+            <if test="countryCode != null">
+                country_code,
+            </if>
+            <if test="date != null">
+                date,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="parentAsin != null">
+                parent_asin,
+            </if>
+            <if test="childAsin != null">
+                child_asin,
+            </if>
+            <if test="productName != null">
+                product_name,
+            </if>
+            <if test="buyerVisits != null">
+                buyer_visits,
+            </if>
+            <if test="buyerVisitsPercentage != null">
+                buyer_visits_percentage,
+            </if>
+            <if test="pageViews != null">
+                page_views,
+            </if>
+            <if test="pageViewsPercentage != null">
+                page_views_percentage,
+            </if>
+            <if test="purchaseButtonWinRate != null">
+                purchase_button_win_rate,
+            </if>
+            <if test="orderedItemsNumber != null">
+                ordered_items_number,
+            </if>
+            <if test="orderQuantityB2b != null">
+                order_quantity_B2B,
+            </if>
+            <if test="orderItemsConversionRate != null">
+                order_items_conversion_rate,
+            </if>
+            <if test="itemsConversionRateB2b != null">
+                items_conversion_rate_B2B,
+            </if>
+            <if test="orderedItemSales != null">
+                ordered_item_sales,
+            </if>
+            <if test="orderedItemSalesB2b != null">
+                ordered_item_sales_B2B,
+            </if>
+            <if test="orderProductCategorys != null">
+                order_product_categorys,
+            </if>
+            <if test="totalOrderItemsB2b != null">
+                total_order_items_B2B,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="shopName != null">
+                #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="countryCode != null">
+                #{countryCode,jdbcType=VARCHAR},
+            </if>
+            <if test="date != null">
+                #{date,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="parentAsin != null">
+                #{parentAsin,jdbcType=VARCHAR},
+            </if>
+            <if test="childAsin != null">
+                #{childAsin,jdbcType=VARCHAR},
+            </if>
+            <if test="productName != null">
+                #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="buyerVisits != null">
+                #{buyerVisits,jdbcType=INTEGER},
+            </if>
+            <if test="buyerVisitsPercentage != null">
+                #{buyerVisitsPercentage,jdbcType=DECIMAL},
+            </if>
+            <if test="pageViews != null">
+                #{pageViews,jdbcType=INTEGER},
+            </if>
+            <if test="pageViewsPercentage != null">
+                #{pageViewsPercentage,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseButtonWinRate != null">
+                #{purchaseButtonWinRate,jdbcType=DECIMAL},
+            </if>
+            <if test="orderedItemsNumber != null">
+                #{orderedItemsNumber,jdbcType=INTEGER},
+            </if>
+            <if test="orderQuantityB2b != null">
+                #{orderQuantityB2b,jdbcType=INTEGER},
+            </if>
+            <if test="orderItemsConversionRate != null">
+                #{orderItemsConversionRate,jdbcType=DECIMAL},
+            </if>
+            <if test="itemsConversionRateB2b != null">
+                #{itemsConversionRateB2b,jdbcType=DECIMAL},
+            </if>
+            <if test="orderedItemSales != null">
+                #{orderedItemSales,jdbcType=VARCHAR},
+            </if>
+            <if test="orderedItemSalesB2b != null">
+                #{orderedItemSalesB2b,jdbcType=VARCHAR},
+            </if>
+            <if test="orderProductCategorys != null">
+                #{orderProductCategorys,jdbcType=INTEGER},
+            </if>
+            <if test="totalOrderItemsB2b != null">
+                #{totalOrderItemsB2b,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertListSelective"
+            parameterType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+        insert into detail_page_sales_and_traffic_by_child_items
+        (
+        shop_name,
+        country_code,
+        seller_id,
+        `date`,
+        create_time,
+        parent_asin,
+        child_asin,
+        product_name,
+        buyer_visits,
+        buyer_visits_percentage,
+        page_views,
+        page_views_percentage,
+        purchase_button_win_rate,
+        ordered_items_number,
+        order_quantity_B2B,
+        order_items_conversion_rate,
+        items_conversion_rate_B2B,
+        ordered_item_sales,
+        ordered_item_sales_B2B,
+        order_product_categorys,
+        total_order_items_B2B
+        )
+        values
+        <foreach collection="detailPageSalesAndTrafficByChildItemsList" item="detailPageSalesAndTrafficByChildItems"
+                 index="index" separator=",">
+            (
+            #{detailPageSalesAndTrafficByChildItems.shopName,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.countryCode,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.sellerId,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.date,jdbcType=TIMESTAMP},
+            #{detailPageSalesAndTrafficByChildItems.createTime,jdbcType=TIMESTAMP},
+            #{detailPageSalesAndTrafficByChildItems.parentAsin,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.childAsin,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.productName,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.buyerVisits,jdbcType=INTEGER},
+            #{detailPageSalesAndTrafficByChildItems.buyerVisitsPercentage,jdbcType=DECIMAL},
+            #{detailPageSalesAndTrafficByChildItems.pageViews,jdbcType=INTEGER},
+            #{detailPageSalesAndTrafficByChildItems.pageViewsPercentage,jdbcType=DECIMAL},
+            #{detailPageSalesAndTrafficByChildItems.purchaseButtonWinRate,jdbcType=DECIMAL},
+            #{detailPageSalesAndTrafficByChildItems.orderedItemsNumber,jdbcType=INTEGER},
+            #{detailPageSalesAndTrafficByChildItems.orderQuantityB2b,jdbcType=INTEGER},
+            #{detailPageSalesAndTrafficByChildItems.orderItemsConversionRate,jdbcType=DECIMAL},
+            #{detailPageSalesAndTrafficByChildItems.itemsConversionRateB2b,jdbcType=DECIMAL},
+            #{detailPageSalesAndTrafficByChildItems.orderedItemSales,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.orderedItemSalesB2b,jdbcType=VARCHAR},
+            #{detailPageSalesAndTrafficByChildItems.orderProductCategorys,jdbcType=INTEGER},
+            #{detailPageSalesAndTrafficByChildItems.totalOrderItemsB2b,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+        update detail_page_sales_and_traffic_by_child_items
+        <set>
+            <if test="shopName != null">
+                shop_name = #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="countryCode != null">
+                country_code = #{countryCode,jdbcType=VARCHAR},
+            </if>
+            <if test="date != null">
+                date = #{date,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="parentAsin != null">
+                parent_asin = #{parentAsin,jdbcType=VARCHAR},
+            </if>
+            <if test="childAsin != null">
+                child_asin = #{childAsin,jdbcType=VARCHAR},
+            </if>
+            <if test="productName != null">
+                product_name = #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="buyerVisits != null">
+                buyer_visits = #{buyerVisits,jdbcType=INTEGER},
+            </if>
+            <if test="buyerVisitsPercentage != null">
+                buyer_visits_percentage = #{buyerVisitsPercentage,jdbcType=DECIMAL},
+            </if>
+            <if test="pageViews != null">
+                page_views = #{pageViews,jdbcType=INTEGER},
+            </if>
+            <if test="pageViewsPercentage != null">
+                page_views_percentage = #{pageViewsPercentage,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseButtonWinRate != null">
+                purchase_button_win_rate = #{purchaseButtonWinRate,jdbcType=DECIMAL},
+            </if>
+            <if test="orderedItemsNumber != null">
+                ordered_items_number = #{orderedItemsNumber,jdbcType=INTEGER},
+            </if>
+            <if test="orderQuantityB2b != null">
+                order_quantity_B2B = #{orderQuantityB2b,jdbcType=INTEGER},
+            </if>
+            <if test="orderItemsConversionRate != null">
+                order_items_conversion_rate = #{orderItemsConversionRate,jdbcType=DECIMAL},
+            </if>
+            <if test="itemsConversionRateB2b != null">
+                items_conversion_rate_B2B = #{itemsConversionRateB2b,jdbcType=DECIMAL},
+            </if>
+            <if test="orderedItemSales != null">
+                ordered_item_sales = #{orderedItemSales,jdbcType=VARCHAR},
+            </if>
+            <if test="orderedItemSalesB2b != null">
+                ordered_item_sales_B2B = #{orderedItemSalesB2b,jdbcType=VARCHAR},
+            </if>
+            <if test="orderProductCategorys != null">
+                order_product_categorys = #{orderProductCategorys,jdbcType=INTEGER},
+            </if>
+            <if test="totalOrderItemsB2b != null">
+                total_order_items_B2B = #{totalOrderItemsB2b,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey"
+            parameterType="com.weiziplus.springboot.models.DetailPageSalesAndTrafficByChildItems">
+    update detail_page_sales_and_traffic_by_child_items
+    set shop_name = #{shopName,jdbcType=VARCHAR},
+      country_code = #{countryCode,jdbcType=VARCHAR},
+      date = #{date,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      parent_asin = #{parentAsin,jdbcType=VARCHAR},
+      child_asin = #{childAsin,jdbcType=VARCHAR},
+      product_name = #{productName,jdbcType=VARCHAR},
+      buyer_visits = #{buyerVisits,jdbcType=INTEGER},
+      buyer_visits_percentage = #{buyerVisitsPercentage,jdbcType=DECIMAL},
+      page_views = #{pageViews,jdbcType=INTEGER},
+      page_views_percentage = #{pageViewsPercentage,jdbcType=DECIMAL},
+      purchase_button_win_rate = #{purchaseButtonWinRate,jdbcType=DECIMAL},
+      ordered_items_number = #{orderedItemsNumber,jdbcType=INTEGER},
+      order_quantity_B2B = #{orderQuantityB2b,jdbcType=INTEGER},
+      order_items_conversion_rate = #{orderItemsConversionRate,jdbcType=DECIMAL},
+      items_conversion_rate_B2B = #{itemsConversionRateB2b,jdbcType=DECIMAL},
+      ordered_item_sales = #{orderedItemSales,jdbcType=VARCHAR},
+      ordered_item_sales_B2B = #{orderedItemSalesB2b,jdbcType=VARCHAR},
+      order_product_categorys = #{orderProductCategorys,jdbcType=INTEGER},
+      total_order_items_B2B = #{totalOrderItemsB2b,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="getDateSum" resultType="java.lang.Integer">
+    select count(`date`)
+    from
+    detail_page_sales_and_traffic_by_child_items
+    where
+    `date` = #{date} and seller_id = #{sellerId,jdbcType=VARCHAR} and country_code = #{area,jdbcType=VARCHAR}
+  </select>
+    <delete id="deleteDateSum">
+        delete from detail_page_sales_and_traffic_by_child_items
+        <where>
+            <if test="sellerId != null and sellerId != ''">
+                and seller_id = #{sellerId,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null and area != ''">
+                and country_code = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="date != null and date != ''">
+                and `date` = #{date,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    <select id="getLatestAllOrderedItemSales" resultType="java.math.BigDecimal">
+        select SUM(ordered_item_sales + ordered_item_sales_B2B)
+        from detail_page_sales_and_traffic_by_child_items
+        where shop_name = #{shop} and <![CDATA[country_code = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date` < CURDATE();
+        ]]>
+    </select>
+    <select id="getAllOrderedItemSalesByDate" resultType="java.math.BigDecimal">
+        select SUM(ordered_item_sales + ordered_item_sales_B2B)
+        from detail_page_sales_and_traffic_by_child_items
+        where shop_name = #{shop} and country_code = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+  </select>
+    <select id="getLatestBuyerVisits" resultType="java.lang.Integer">
+        select SUM(buyer_visits)
+        from detail_page_sales_and_traffic_by_child_items
+        where shop_name = #{shop} and <![CDATA[country_code = #{area} and `date` >= DATE_SUB(CURDATE(),INTERVAL 3 MONTH) and `date` < CURDATE();
+        ]]>
+    </select>
+    <select id="getBuyerVisitsByDate" resultType="java.lang.Integer">
+        select SUM(buyer_visits)
+        from detail_page_sales_and_traffic_by_child_items
+        where shop_name = #{shop} and country_code = #{area} and <![CDATA[DATE_FORMAT(`date`,"%Y%c") <= DATE_FORMAT(#{startDate},"%Y%c") and DATE_FORMAT(`date`,"%Y%c") >= DATE_FORMAT(#{endDate},"%Y%c")]]>;
+    </select>
+
+</mapper>

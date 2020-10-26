@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.shop.ShopAreaMapper">
+    <select id="getAreaListByShopId" resultType="com.weiziplus.springboot.models.Area">
+        SELECT a.*
+        FROM area a,shop_area sa
+        WHERE sa.shop_id = #{shopId} AND sa.area_id = a.id
+        ORDER BY a.id DESC
+    </select>
+    <select id="getAllAreaListByShopId" resultType="java.util.Map">
+        SELECT a.*,IF(sa.id IS NOT NULL,1,0) AS have
+        FROM area a
+        LEFT JOIN shop_area sa ON sa.shop_id = #{shopId} AND sa.area_id = a.id
+        ORDER BY a.id DESC
+    </select>
+    <delete id="deleteAreaListByShopId">
+        DELETE FROM shop_area
+        WHERE shop_id = #{shopId}
+    </delete>
+    <insert id="addAreaListByShopIdAndAreaIds">
+        INSERT INTO shop_area
+        (shop_id,area_id)
+        values
+        <foreach collection="areaIds" item="areaId" index="index" separator=",">
+            (#{shopId},#{areaId})
+        </foreach>
+    </insert>
+
+</mapper>

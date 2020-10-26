@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.InventoryReportMapper">
+
+    <insert id="addChildBodyInventoryReport"
+            parameterType="com.weiziplus.springboot.models.DO.ChildBodyInventoryReportDO">
+        insert into child_body_inventory_report(
+        csku,
+        casin,
+        psku,
+        seller_id,
+        area,
+        date_type,
+        `date`,
+        create_time,
+        sum_quantity,
+        unit_price,
+        afn_fulfillable_quantity,
+        afn_inbound_shipped_quantity,
+        afn_inbound_receiving_quantity,
+        reserved_fc_transfers,
+        total_inventory,
+        afn_unsellable_quantity,
+        sum_inv_age_90_plus_days,
+        sum_impressions,
+        sum_clicks,
+        sum_cost,
+        sum_attributed_units_ordered,
+        sum_attributed_sales,
+        sum_attributed_sales_same_SKU,
+        Effective_conversion_rate,
+        CTR,
+        CR,
+        ACoS,
+        CPC,
+        sum_buyer_visits,
+        Sales_Views_Conversion_Rate,
+        expected_daily_sales,
+        expected_60_days_sales,
+        expected_total_inventory_after_60_days,
+        expected_availability,
+        expected_sale_date,
+        shortage_inventory_estimates,
+        clicks_visits_rate,
+        ads_rev_rate,
+        ads_cost_rate
+        )
+        values
+        <foreach collection="childBodyInventoryReportDOList" item="childBodyInventoryReportDO"
+                 index="index" separator=",">
+        (
+        #{childBodyInventoryReportDO.cSku,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.cAsin,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.pSku,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.sellerId,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.area,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.dateType,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.date,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.createTime,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.sumQuantity,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.unitPrice,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.afnFulfillableQuantity,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.afnInboundShippedQuantity,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.afnInboundReceivingQuantity,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.reservedFcTransfers,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.totalInventory,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.afnUnsellableQuantity,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.sumInvAge90PlusDays,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.sumImpressions,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.sumClicks,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.sumCost,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.sumAttributedUnitsOrdered,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.sumAttributedSales,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.sumAttributedSalesSameSKU,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.effectiveConversionRate,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.CTR,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.CR,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.ACoS,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.CPC,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.sumBuyerVisits,jdbcType=DECIMAL},
+        #{childBodyInventoryReportDO.salesViewsConversionRate,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.expectedDailySales,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.expected60DaysSales,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.expectedTotalInventoryAfter60Days,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.expectedAvailability,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.expectedSaleDate,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.shortageInventoryEstimates,jdbcType=INTEGER},
+        #{childBodyInventoryReportDO.clicksVisitsRate,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.adsRevRate,jdbcType=VARCHAR},
+        #{childBodyInventoryReportDO.adsCostRate,jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <insert id="addParentBodyInventoryReport"
+            parameterType="com.weiziplus.springboot.models.DO.ParentBodyInventoryReportDO">
+        insert into parent_body_inventory_report(
+        csku,
+        psku,
+        seller_id,
+        area,
+        date_type,
+        `date`,
+        `create_time`,
+        sum_quantity,
+        unit_price,
+        afn_fulfillable_quantity,
+        afn_inbound_shipped_quantity,
+        afn_inbound_receiving_quantity,
+        reserved_fc_transfers,
+        total_inventory,
+        afn_unsellable_quantity,
+        sum_inv_age_90_plus_days,
+        sum_impressions,
+        sum_clicks,
+        sum_cost,
+        sum_attributed_units_ordered,
+        sum_attributed_sales,
+        sum_attributed_sales_same_SKU,
+        Effective_conversion_rate,
+        CTR,
+        CR,
+        ACoS,
+        CPC,
+        sum_buyer_visits,
+        Sales_Views_Conversion_Rate,
+        expected_daily_sales,
+        expected_60_days_sales,
+        expected_total_inventory_after_60_days,
+        expected_availability,
+        expected_sale_date,
+        shortage_inventory_estimates,
+        clicks_visits_rate,
+        ads_rev_rate,
+        ads_cost_rate
+        )
+        values
+        <foreach collection="parentBodyInventoryReportDOList" item="parentBodyInventoryReportDO"
+                 index="index" separator=",">
+        (
+        #{parentBodyInventoryReportDO.cSku,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.pSku,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.sellerId,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.area,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.dateType,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.date,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.createTime,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.sumQuantity,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.unitPrice,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.afnFulfillableQuantity,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.afnInboundShippedQuantity,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.afnInboundReceivingQuantity,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.reservedFcTransfers,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.totalInventory,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.afnUnsellableQuantity,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.sumInvAge90PlusDays,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.sumImpressions,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.sumClicks,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.sumCost,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.sumAttributedUnitsOrdered,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.sumAttributedSales,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.sumAttributedSalesSameSKU,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.effectiveConversionRate,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.CTR,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.CR,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.ACoS,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.CPC,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.sumBuyerVisits,jdbcType=DECIMAL},
+        #{parentBodyInventoryReportDO.salesViewsConversionRate,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.expectedDailySales,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.expected60DaysSales,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.expectedTotalInventoryAfter60Days,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.expectedAvailability,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.expectedSaleDate,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.shortageInventoryEstimates,jdbcType=INTEGER},
+        #{parentBodyInventoryReportDO.clicksVisitsRate,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.adsRevRate,jdbcType=VARCHAR},
+        #{parentBodyInventoryReportDO.adsCostRate,jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <select id="selectChildInventoryReportByDate"
+            resultType="com.weiziplus.springboot.models.DO.ChildBodyInventoryReportDO">
+        select * from child_body_inventory_report
+        where
+        date_type = #{type} and date = #{date} and seller_id = #{sellerId} and area = #{area}
+        <if test="sku != null and sku !=''">
+            AND csku LIKE CONCAT("%",#{sku},"%")
+        </if>
+        <if test="asin != null and asin !=''">
+            AND casin LIKE CONCAT("%",#{asin},"%")
+        </if>
+        <if test="parentSku != null and parentSku !=''">
+            AND psku LIKE CONCAT("%",#{parentSku},"%")
+        </if>
+    </select>
+    <select id="selectParentInventoryReportByDate"
+            resultType="com.weiziplus.springboot.models.DO.ParentBodyInventoryReportDO">
+        select * from parent_body_inventory_report
+        where
+        date_type = #{type} and date = #{date} and seller_id = #{sellerId} and area = #{area}
+        <if test="parentSku != null and parentSku !=''">
+            AND psku LIKE CONCAT("%",#{parentSku},"%")
+        </if>
+    </select>
+</mapper>

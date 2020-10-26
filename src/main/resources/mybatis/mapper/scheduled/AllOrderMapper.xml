@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.scheduled.AllOrderMapper">
+    <select id="getOneInfoByAmazonOrderIdAndSkuAndAsin" resultType="com.weiziplus.springboot.models.AllOrder">
+        SELECT *
+        FROM all_order
+        WHERE amazon_order_id = #{amazonOrderId} AND sku = #{sku} AND asin = #{asin} AND area = #{area}
+        LIMIT 1
+    </select>
+    <delete id="deleteAllOrder">
+        delete from all_order
+    </delete>
+</mapper>

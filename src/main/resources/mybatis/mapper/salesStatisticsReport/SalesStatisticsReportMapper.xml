@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.salesStatisticsReport.SalesStatisticsReportMapper">
+
+    <select id="getSalesAmountByYear" resultType="com.weiziplus.springboot.models.DO.SalesAmountDO">
+        SELECT
+        	ao.shop as shop_name,
+	    	ao.seller_id as seller_id,
+	    	ao.area as area_code,
+	    	ao.sales_channel as salesChannel,
+	    	ao.currency as currency,
+	    	YEAR(ao.purchase_date) as `year`,
+			MONTH(ao.purchase_date) as `month`,
+	    	SUM(IFNULL(ROUND(ao.item_price, 2), 0) - IFNULL(ROUND(ao.item_promotion_discount,2),0)) as sum_sales_amount
+		FROM
+			all_order ao
+		WHERE
+		ao.seller_id = #{sellerId,jdbcType=VARCHAR} and ao.area = #{areaCode,jdbcType=VARCHAR} and ao.sales_channel = #{salesChannel,jdbcType=VARCHAR} and
+		<![CDATA[ao.purchase_date < DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY)]]>
+		and DATE_FORMAT(ao.purchase_date, "%Y") = #{year}
+		GROUP BY
+			ao.seller_id,
+			ao.area,
+			ao.sales_channel,
+			YEAR(ao.purchase_date),
+			MONTH(ao.purchase_date)
+    </select>
+	<select id="getSalesAmountByMonth" resultType="com.weiziplus.springboot.models.DO.SalesAmountDO">
+        SELECT
+        	ao.shop as shop_name,
+	    	ao.seller_id as seller_id,
+	    	ao.area as area_code,
+	    	ao.sales_channel as salesChannel,
+	    	YEAR(ao.purchase_date) as `year`,
+			MONTH(ao.purchase_date) as `month`,
+	    	ifnull(SUM(IFNULL(ROUND(ao.item_price, 2), 0) - IFNULL(ROUND(ao.item_promotion_discount,2),0)),0) as sum_sales_amount
+		FROM
+			all_order ao
+		WHERE
+		ao.seller_id = #{sellerId,jdbcType=VARCHAR} and ao.area = #{areaCode,jdbcType=VARCHAR} and ao.sales_channel = #{salesChannel,jdbcType=VARCHAR} and
+		<![CDATA[ao.purchase_date < DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY)]]>
+		and DATE_FORMAT(ao.purchase_date, "%Y%c") = #{date}
+		GROUP BY
+			ao.seller_id,
+			ao.area,
+			ao.sales_channel
+    </select>
+    <select id="getManageFbaInventorySum" resultType="com.weiziplus.springboot.models.DO.InventorySumDO">
+		SELECT
+		mfi.shop as shop_name,
+		mfi.area as area_code,
+		SUM(mfi.afn_fulfillable_quantity) as sum_afn_fulfillable_quantity,
+		SUM(mfi.afn_inbound_shipped_quantity) as sum_afn_inbound_shipped_quantity,
+		SUM(mfi.afn_inbound_receiving_quantity) as sum_afn_inbound_receiving_quantity
+		FROM
+		latest_manage_fba_inventory mfi
+		group by mfi.shop, mfi.area
+	</select>
+    <select id="getReservedInventorySum"
+            resultType="com.weiziplus.springboot.models.DO.InventorySumDO">
+		SELECT
+		ri.shop as shop_name,
+		ri.area as area_code,
+		SUM(ri.reserved_fc_transfers) as sum_reserved_fc_transfers
+		FROM
+		latest_reserved_inventory ri
+		group by ri.shop, ri.area
+	</select>
+    <select id="getDailyAverageQuantityByDate" resultType="java.lang.Integer">
+        SELECT ifnull(SUM(sum_quantity),0) from latest_sum_quantity
+        where
+        shop = #{shopName,jdbcType=VARCHAR}
+        and area = #{areaCode,jdbcType=VARCHAR}
+		and latest_week = #{latestWeek}
+		GROUP BY shop,area
+    </select>
+    <select id="getSalesAmountFromExistingData"
+            resultType="com.weiziplus.springboot.models.VO.ShopSalesStatisticsDataVO">
+		SELECT * from sales_statistics_report where seller_id = #{sellerId,jdbcType=VARCHAR} and area_code = #{areaCode,jdbcType=VARCHAR} and `year` = #{year}
+	</select>
+    <insert id="insertBaseData">
+		insert into sales_statistics_report
+		(shop_name,
+		seller_id,
+		area_code,
+		`year`,
+		january_sales,
+		february_sales,
+		march_sales,
+		april_sales,
+		may_sales,
+		june_sales,
+		july_sales,
+		august_sales,
+		september_sales,
+		october_sales,
+		november_sales,
+		december_sales,
+		total_annual_sales
+		)
+		values
+		(#{shopSalesStatisticsDataVO.shopName,jdbcType=VARCHAR},
+		#{shopSalesStatisticsDataVO.sellerId,jdbcType=VARCHAR},
+		#{shopSalesStatisticsDataVO.areaCode,jdbcType=VARCHAR},
+		#{shopSalesStatisticsDataVO.year},
+		#{shopSalesStatisticsDataVO.januarySales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.februarySales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.marchSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.aprilSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.maySales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.juneSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.julySales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.augustSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.septemberSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.octoberSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.novemberSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.decemberSales,jdbcType=DECIMAL},
+		#{shopSalesStatisticsDataVO.totalAnnualSales,jdbcType=DECIMAL}
+		)
+	</insert>
+	<select id="getSalesIndicatorByGroupName" resultType="com.weiziplus.springboot.models.DO.SalesIndicatorDO">
+		select * from sales_indicator where group_name = #{groupName,jdbcType=VARCHAR} and `year` = #{year};
+	</select>
+	<select id="getSalesIndicatorName" resultType="com.weiziplus.springboot.models.DO.SalesIndicatorDO">
+		select * from sales_indicator where `year` = #{year} group by group_name;
+	</select>
+    <update id="updateBaseData">
+        update sales_statistics_report set
+		shop_name = #{shopSalesStatisticsDataVO.shopName,jdbcType=VARCHAR},
+		january_sales = #{shopSalesStatisticsDataVO.januarySales,jdbcType=DECIMAL},
+		february_sales = #{shopSalesStatisticsDataVO.februarySales,jdbcType=DECIMAL},
+		march_sales = #{shopSalesStatisticsDataVO.marchSales,jdbcType=DECIMAL},
+		april_sales = #{shopSalesStatisticsDataVO.aprilSales,jdbcType=DECIMAL},
+		may_sales = #{shopSalesStatisticsDataVO.maySales,jdbcType=DECIMAL},
+		june_sales = #{shopSalesStatisticsDataVO.juneSales,jdbcType=DECIMAL},
+		july_sales = #{shopSalesStatisticsDataVO.julySales,jdbcType=DECIMAL},
+		august_sales = #{shopSalesStatisticsDataVO.augustSales,jdbcType=DECIMAL},
+		september_sales = #{shopSalesStatisticsDataVO.septemberSales,jdbcType=DECIMAL},
+		october_sales = #{shopSalesStatisticsDataVO.octoberSales,jdbcType=DECIMAL},
+		november_sales = #{shopSalesStatisticsDataVO.novemberSales,jdbcType=DECIMAL},
+		december_sales = #{shopSalesStatisticsDataVO.decemberSales,jdbcType=DECIMAL},
+		total_annual_sales = #{shopSalesStatisticsDataVO.totalAnnualSales,jdbcType=DECIMAL}
+		where
+		seller_id = #{shopSalesStatisticsDataVO.sellerId,jdbcType=VARCHAR}
+		and	area_code = #{shopSalesStatisticsDataVO.areaCode,jdbcType=VARCHAR}
+		and `year` = #{shopSalesStatisticsDataVO.year}
+    </update>
+	<select id="getExchangeRate" resultType="com.weiziplus.springboot.models.DO.ExchangeRateDO">
+		select * from daily_exchange_rate;
+	</select>
+</mapper>

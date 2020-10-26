@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.SponsoredProductsPerformanceOverTimeReportMapper">
+    <select id="getListDataByYear" resultType="com.weiziplus.springboot.models.SponsoredProductsPerformanceOverTimeReport">
+        SELECT SUM(clicks) AS clicks
+        FROM original_data_adv_campaigns_report
+        WHERE date LIKE concat(#{year},'-%')
+    </select>
+    <select id="getListDataByYearAndMonth"
+            resultType="com.weiziplus.springboot.models.SponsoredProductsPerformanceOverTimeReport">
+        SELECT SUM(clicks) AS clicks
+        FROM original_data_adv_campaigns_report
+        WHERE date LIKE concat(#{year},'-',#{month},'-%')
+    </select>
+</mapper>

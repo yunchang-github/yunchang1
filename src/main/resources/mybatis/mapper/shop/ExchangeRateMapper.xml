@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.shop.ExchangeRateMapper">
+    <select id="getList" resultType="java.util.Map">
+        SELECT er.*,a.area_name
+        FROM exchange_rate er,area a
+        WHERE er.area_id = a.id
+        <if test="null != areaId">
+            AND er.area_id = #{areaId}
+        </if>
+        <if test="null != currency and '' != currency">
+            AND POSITION(#{currency} IN er.currency)
+        </if>
+        <if test="null != createTime and '' != createTime">
+            AND er.create_time LIKE concat(#{createTime},'%')
+        </if>
+    </select>
+    <select id="getOneInfoByAreaId" resultType="com.weiziplus.springboot.models.ExchangeRate">
+        SELECT *
+        FROM exchange_rate
+        WHERE area_id = #{areaId}
+        LIMIT 1
+    </select>
+    <insert id="insertExchangeRate">
+        insert into daily_exchange_rate(
+        `code`,
+        currency,
+        close_pri,
+        diff_per,
+        diff_amo,
+        open_pri,
+        low_pic,
+        `range`,
+        buy_pic,
+        sell_pic,
+        color,
+        yes_pic,
+        `date`
+        )
+        values
+        <foreach collection="exchangeRateDOList" item="exchangeRateDO" separator=",">
+            (
+            #{exchangeRateDO.code,jdbcType=VARCHAR},
+            #{exchangeRateDO.currency,jdbcType=VARCHAR},
+            #{exchangeRateDO.closePri,jdbcType=DECIMAL},
+            #{exchangeRateDO.diffPer,jdbcType=VARCHAR},
+            #{exchangeRateDO.diffAmo,jdbcType=DECIMAL},
+            #{exchangeRateDO.openPri,jdbcType=DECIMAL},
+            #{exchangeRateDO.lowPic,jdbcType=DECIMAL},
+            #{exchangeRateDO.range,jdbcType=VARCHAR},
+            #{exchangeRateDO.buyPic,jdbcType=DECIMAL},
+            #{exchangeRateDO.sellPic,jdbcType=DECIMAL},
+            #{exchangeRateDO.color,jdbcType=VARCHAR},
+            #{exchangeRateDO.yesPic,jdbcType=DECIMAL},
+            #{exchangeRateDO.date,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+</mapper>

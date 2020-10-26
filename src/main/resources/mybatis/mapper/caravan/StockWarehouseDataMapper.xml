@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.StockWarehouseDataMapper">
+    <delete id="deleteByDate">
+        DELETE FROM stock_warehouse_data
+        WHERE date = #{date}
+    </delete>
+    <select id="getOneInfoByStockIdAndWearhouseId"
+            resultType="com.weiziplus.springboot.models.StockWarehouseData">
+        SELECT *
+        FROM stock_warehouse_data
+        WHERE stockId = #{stockId} AND wearhouseId = #{wearhouseId}
+        LIMIT 1
+    </select>
+</mapper>

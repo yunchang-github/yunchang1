@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.ManageFbaInventoryMapper">
+    
+       <select id="getStock" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.ManageFbaInventory">
+				SELECT
+					COALESCE(sum(afn_fulfillable_quantity),0) as sellableStock,
+					COALESCE(sum(afn_unsellable_quantity),0) as notSellableStock,
+					COALESCE(sum(afn_inbound_shipped_quantity),0) as unsignedInventory,
+					COALESCE(sum(afn_inbound_receiving_quantity),0) as signedInventory 
+				FROM
+					manage_fba_inventory 
+				WHERE
+					asin = #{param.asin}
+					  				
+				<if test="param.area != null and param.area !='' ">
+  					and area = #{param.area}
+  				</if>
+  				<if test="param.shop != null and param.shop != ''">
+  					and shop = #{param.shop}
+  				</if>
+    </select>
+    
+    
+    
+</mapper>

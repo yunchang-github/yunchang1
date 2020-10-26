@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.seckill.SeckillMapper">
+   <!-- <select id="getOneInfoByCampaignId"
+            resultType="com.weiziplus.springboot.models.Seckill">
+		SELECT *
+		FROM seckill
+		WHERE campaign_id = #{campaignId}
+		LIMIT 1
+	</select>-->
+  <!--  <select id="getSeckillNumByShopAndArea" resultType="java.util.Map">
+		SELECT COUNT(*) AS count,type
+		FROM seckill
+		GROUP BY type
+    </select>-->
+</mapper>

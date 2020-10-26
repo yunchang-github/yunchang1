@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.performanceAccountingReport.ChildPerformanceAccountingMapper">
+
+    <select id="getChildPageList" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        d.sku,
+        d.asin,
+        d.shop,
+        d.area,
+        ifnull(a.netSales,0.00) as netSales,
+        ifnull(a.netSalesNum,0) as netSalesNum,
+        ifnull(b.totalRefundAmount,0.00) as totalRefundAmount,
+        ifnull(b.totalRefundNum,0) as totalRefundNum ,
+        ifnull(c.sellable,0) as sellable,
+        (select e.parent_sku from msku_parentsku_childrenasin_parentasin e where d.sku = e.msku and d.shop = e.shop and
+        d.area = e.area
+        limit 0,1
+        ) as parentSku
+        FROM
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        GROUP BY
+        sku,
+        asin,shop,area
+        ) d
+        left join
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area,
+        COALESCE ( sum( item_price ), 0 ) - COALESCE ( sum( item_promotion_discount ), 0 ) AS netSales,
+        COALESCE ( sum( quantity ), 0 ) AS netSalesNum
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        and
+        order_sale_status = "0"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND item_price >= 5
+        GROUP BY
+        sku,
+        asin,shop,area
+        ) a on  d.sku = a.sku and  d.asin = a.asin and d.shop = a.shop and d.area = a.area
+        LEFT JOIN (
+        SELECT
+        sku,
+        asin,
+        shop,area,
+        COALESCE ( sum( item_price ), 0 ) - COALESCE ( sum( item_promotion_discount ), 0 ) AS totalRefundAmount,
+        COALESCE ( sum( quantity ), 0 ) AS totalRefundNum
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        and
+        order_sale_status = "1"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND item_price >= 5
+        GROUP BY
+        sku,
+        asin,shop,area
+        ) b ON d.sku = b.sku
+        AND d.asin = b.asin
+        and d.shop = b.shop
+        and d.area = b.area
+        LEFT JOIN (
+        SELECT
+        sku,
+        asin,shop,area,
+        COALESCE ( sum( quantity ), 0 ) AS sellable
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+        and
+        order_sale_status = "1"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND order_refound_status >= 'SELLABLE'
+        GROUP BY
+        sku,
+        asin,shop,area
+        ) c ON d.sku = c.sku
+        AND d.asin = c.asin
+        and d.shop = c.shop
+        and d.area = c.area
+        where 1 = 1
+        <if test="sku != null and sku != ''">
+            and d.sku = #{sku}
+        </if>
+        <if test="asin != null and asin != ''">
+            and d.asin = #{asin}
+        </if>
+
+    </select>
+
+    <select id="getParentPageList" parameterType="java.util.Map" resultType="java.util.Map">
+        select shop,area,parentSku,GROUP_CONCAT(sku) as sku from ( SELECT
+        d.sku,
+        d.asin,
+        d.shop,
+        d.area,
+        (select e.parent_sku from msku_parentsku_childrenasin_parentasin e where d.sku = e.msku and d.shop = e.shop and
+        d.area = e.area
+        limit 0,1
+        ) as parentSku
+        FROM
+        (
+        SELECT
+        sku,
+        asin,
+        shop,
+        area
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+        <if test="shop != null and shop != ''">
+            and shop in
+            <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                #{shop}
+            </foreach>
+        </if>
+        <if test="area != null and area != ''">
+            and area in
+            <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                #{area}
+            </foreach>
+        </if>
+
+        GROUP BY
+        sku,
+        asin,
+        shop,
+        area
+        ) d ) h
+        where parentSku is not null
+        <if test="sku != null and sku != ''">
+            and parentSku = #{sku}
+        </if>
+
+        group by parentSku
+    </select>
+
+    <select id="findNetSalesFromOneSku" parameterType="java.util.Map" resultType="java.util.Map">
+
+        SELECT
+        asin,
+        COALESCE ( sum( item_price ), 0 ) - COALESCE ( sum( item_promotion_discount ), 0 ) AS netSales,
+        COALESCE ( sum( quantity ), 0 ) AS netSalesNum
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        and
+
+        order_sale_status = "0"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND item_price >= 5
+        AND sku = #{sku}
+
+    </select>
+    <select id="findTotalRefundFromOneSku" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        COALESCE ( sum( item_price ), 0 ) - COALESCE ( sum( item_promotion_discount ), 0 ) AS totalRefundAmount,
+        COALESCE ( sum( quantity ), 0 ) AS totalRefundNum
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        and
+        order_sale_status = "1"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND item_price >= 5
+        AND sku = #{sku}
+    </select>
+
+    <select id="findSellableFromOneSku" parameterType="java.util.Map" resultType="String">
+        SELECT
+        COALESCE ( sum( quantity ), 0 ) AS sellable
+        FROM
+        `v_all_order_performance_accounting`
+        WHERE
+        purchase_date BETWEEN #{firstDate} and #{lastDate}
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        and
+        order_sale_status = "1"
+        AND item_status &lt;&gt; 'Cancelled'
+        AND order_refound_status >= 'SELLABLE'
+        AND sku = #{sku}
+    </select>
+
+
+    <select id="findPurchasePrice" parameterType="java.util.Map" resultType="java.util.Map">
+    	select purchase_price,is_estimate from purchase_price where msku = #{sku} and shop = #{shop} and area = #{area}
+    </select>
+
+    <select id="findHeadFreight" parameterType="java.util.Map" resultType="java.util.Map">
+    	select head_freight,is_estimate from head_freight where msku = #{sku} and shop = #{shop} and area = #{area}
+    </select>
+
+    <select id="findShippingFees" parameterType="java.util.Map" resultType="String">
+    	select expected_fulfillment_fee_per_unit from fee_preview where asin = #{asin} and shop = #{shop} and area = #{area} limit 0,1
+    </select>
+
+    <select id="findExpectedAmazonDistributionCost" parameterType="java.util.Map" resultType="String">
+    	select expected_distribution_cost from expected_amazon_distribution_cost where msku = #{sku} and shop = #{shop} and area = #{area}
+    </select>
+
+    <select id="findSponsoredProductsAdvertisedProductReport" parameterType="java.util.Map" resultType="Double">
+    	select COALESCE ( sum( spend ), 0 ) as spend from sponsored_products_advertised_product_report where advertised_sku = #{sku} and shop = #{shop} and area = #{area} and date between #{firstDate} and #{lastDate};
+    </select>
+
+    <select id="findShopExchangeRate" parameterType="java.util.Map" resultType="Double">
+        SELECT
+        CASE
+        WHEN
+        (
+        SELECT
+        count( create_time )
+        FROM
+        `exchange_rate`
+        WHERE
+        create_time <![CDATA[<=]]> #{lastDate}
+
+        <if test="area != null and area != ''">
+            AND area_id = #{area}
+        </if>
+        ) > 0 THEN
+        (
+        SELECT
+        ifnull( exchange_rate, 0.0000 )
+        FROM
+        `exchange_rate`
+        WHERE
+        create_time <![CDATA[<=]]> #{lastDate}
+
+        <if test="area != null and area != ''">
+            AND area_id = #{area}
+        </if>
+        ORDER BY
+        create_time DESC
+        LIMIT 0,
+        1
+        ) ELSE (
+        SELECT
+        ifnull(exchange_rate, 0.0000 )
+        FROM
+        `exchange_rate`
+        WHERE
+        create_time <![CDATA[>=]]> #{lastDate}
+
+        <if test="area != null and area != ''">
+            AND area_id = #{area}
+        </if>
+        ORDER BY
+        create_time
+        LIMIT 0,
+        1
+        )
+        END AS exchange_rate
+        FROM
+        exchange_rate limit 0,1
+
+    </select>
+
+    <select id="findShopCommissionRate" parameterType="java.util.Map" resultType="Double">
+        SELECT
+        CASE
+        WHEN
+        (
+        SELECT
+        count( create_time )
+        FROM
+        `shop_commission_rate`
+        WHERE
+        create_time <![CDATA[<=]]> #{lastDate}
+        <if test="shop != null and shop != ''">
+            AND shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            AND area = #{area}
+        </if>
+        ) > 0 THEN
+        (
+        SELECT
+        ifnull( commission_rate, 0.0000 )
+        FROM
+        `shop_commission_rate`
+        WHERE
+        create_time <![CDATA[<=]]> #{lastDate}
+        <if test="shop != null and shop != ''">
+            AND shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            AND area = #{area}
+        </if>
+        ORDER BY
+        create_time DESC
+        LIMIT 0,
+        1
+        ) ELSE (
+        SELECT
+        ifnull(commission_rate, 0.0000 )
+        FROM
+        `shop_commission_rate`
+        WHERE
+        create_time <![CDATA[>=]]> #{lastDate}
+        <if test="shop != null and shop != ''">
+            AND shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            AND area = #{area}
+        </if>
+        ORDER BY
+        create_time
+        LIMIT 0,
+        1
+        )
+        END AS commission_rate
+        FROM
+        shop_commission_rate limit 0,1
+    </select>
+
+    <select id="findMonthlyStorageFees" parameterType="java.util.Map" resultType="Double">
+
+
+        SELECT COALESCE(sum(estimated_monthly_storage_fee),0) FROM `monthly_storage_fees` where asin = #{asin}
+
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        <!-- <if test="date != null and date != ''">
+                and date between #{firstDate} and #{lastDate}
+        </if> -->
+
+
+    </select>
+
+    <select id="findLongTermStorageFees" parameterType="java.util.Map" resultType="Double">
+        SELECT COALESCE(sum(12_mo_long_terms_storage_fee),0)+COALESCE(sum(qty_charged_6_mo_long_term_storage_fee
+        ),0)+COALESCE(sum(6_mo_long_terms_storage_fee),0) FROM `long_term_storage_fee_charges` where asin = #{asin}
+        <if test="shop != null and shop != ''">
+            and shop = #{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+        <!-- <if test="date != null and date != ''">
+                and date between #{firstDate} and #{lastDate}
+        </if> -->
+    </select>
+
+</mapper>

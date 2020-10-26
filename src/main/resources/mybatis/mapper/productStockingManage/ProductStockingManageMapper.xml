@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.productStockingManage.ProductStockingManageMapper">
+    	<select id="getProductStockingPageList" parameterType="java.util.Map" resultType="java.util.Map">
+    			select * from v_beihuo
+    	</select>
+    	
+    	
+    	<select id="findRecordByCondition" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.Beihuo">
+    	
+    			select * from beihuo where 1 = 1
+    			<if test="cm.shop != null and cm.shop != ''">
+    					and shop = #{cm.shop}
+    			</if> 
+    			
+    			<if test="cm.area != null and cm.area != ''">
+    					and area = #{cm.area}
+    			</if> 
+    			
+    			<if test="cm.msku != null and cm.msku != ''">
+    					and msku = #{cm.msku}
+    			</if> 
+    			
+    			<if test="cm.asin != null and cm.asin != ''">
+    					and asin = #{cm.asin}
+    			</if> 
+    			<if test="cm.stockSku != null and cm.stockSku != ''">
+    					and stockSku = #{cm.stockSku}
+    			</if> 
+    	
+    	</select>
+    	
+</mapper>

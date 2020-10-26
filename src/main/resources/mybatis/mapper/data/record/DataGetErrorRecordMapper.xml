@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.record.DataGetErrorRecordMapper">
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.DataGetErrorRecord">
+        SELECT *
+        FROM data_get_error_record
+        <where>
+            <if test="null != shop and '' != shop">
+                shop = #{shop}
+            </if>
+            <if test="null != area and '' != area">
+                AND area = #{area}
+            </if>
+            <if test="null != date and '' != date">
+                AND `date` LIKE concat(#{date},'%')
+            </if>
+            <if test="null != type">
+                AND `type` = #{type}
+            </if>
+            <if test="null != isHandle">
+                AND is_handle = #{isHandle}
+            </if>
+            <if test="null != createTime and '' != createTime">
+                AND create_time = #{createTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getListByTaskName" resultType="com.weiziplus.springboot.models.DataGetErrorRecord">
+            SELECT *
+            FROM data_get_error_record
+        <where>
+            <if test="null != taskName and '' != taskName">
+                name = #{taskName}
+            </if>
+            <if test="null != taskTime and '' != taskTime">
+                AND date  LIKE CONCAT(#{taskTime},'%')
+            </if>
+            AND is_handle = 0
+        </where>
+    </select>
+
+    <update id="updateIsHandle">
+        update data_get_error_record set is_handle = #{isHandle} where id = #{id}
+    </update>
+
+
+</mapper>

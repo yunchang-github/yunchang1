@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.sspa.AccountDiagnosisMapper">
+    <select id="getTopTenAsinThreeMonth" resultType="java.util.Map">
+        SELECT
+        stci.child_asin AS "ASIN",
+        SUM(IFNULL(par.impressions,0)) AS "impressions",
+        SUM(IFNULL(par.clicks,0)) AS "clicks",
+        SUM(IFNULL(par.attributed_units_ordered1d,0)) AS "attributed_units_ordered",
+        SUM(IFNULL(par.cost,0)) AS "cost",
+        SUM(IFNULL(par.attributed_sales1d,0)) AS "attributed_sales",
+        SUM(IFNULL(par.attributed_sales1d_same_SKU,0)) AS "attributed_sales1d_same_SKU",
+        IFNULL((SUM(IFNULL(par.attributed_sales1d_same_SKU,0)) / SUM(IFNULL(par.attributed_sales1d,0))),0) AS "effective_conversion_rate",
+        IFNULL((SUM(IFNULL(par.clicks,0)) / SUM(IFNULL(par.impressions,0))),0) AS "CTR",
+        IFNULL((SUM(IFNULL(par.attributed_units_ordered1d,0)) / SUM(IFNULL(par.clicks,0))),0) AS "CR",
+        IFNULL((SUM(IFNULL(par.cost,0)) / SUM(IFNULL(par.attributed_sales1d,0))),0) AS "ACoS",
+        IFNULL((SUM(IFNULL(par.cost,0)) / SUM(IFNULL(par.clicks,0))),0) AS "CPC",
+        stci.sum_order_item_sales AS "ASIN总销售额",
+        stci.sum_page_views AS "总页面浏览次数",
+        IFNULL((SUM(IFNULL(par.clicks,0)) / stci.sum_page_views),0) AS "Click / 页面浏览 %",
+        IFNULL((SUM(IFNULL(par.attributed_sales1d_same_SKU,0)) / stci.sum_order_item_sales),0) AS "Ads Rev / Rev %",
+        IFNULL((SUM(IFNULL(par.cost,0)) / stci.sum_order_item_sales),0) AS "Ads Cost / Rev %"
+        FROM
+        (SELECT
+        stci.child_asin,
+        SUM(IFNULL(stci.ordered_item_sales,0) + IFNULL(stci.ordered_item_sales_B2B,0)) as sum_order_item_sales,
+        SUM(IFNULL(stci.page_views,0)) as sum_page_views
+        FROM
+        detail_page_sales_and_traffic_by_child_items stci
+        <where>
+            <if test="'' != shop and null != shop">
+                and stci.shop_name like CONCAT("%",#{shop,jdbcType=VARCHAR},"%")
+            </if>
+            <if test="'' != area and null != area">
+                and stci.country_code like CONCAT("%",#{area,jdbcType=VARCHAR},"%")
+            </if>
+            AND <![CDATA[stci.date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+            AND stci.date < CURDATE()]]>
+        </where>
+        GROUP BY stci.child_asin
+        ) stci
+        LEFT JOIN
+        original_data_adv_productads_report par
+        ON stci.child_asin = par.asin
+        GROUP BY
+        stci.child_asin
+        ORDER BY
+        sum_order_item_sales DESC
+        LIMIT 10;
+    </select>
+</mapper>

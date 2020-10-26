@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.overseasWarehouseManagement.USDongcangReceivesRemovalOrderProcessingDataMapper">
+    <select id="getList"  parameterType="java.util.Map" resultType="java.util.Map">
+       	select * from US_Dongcang_receives_removal_order_processing_data
+       	where 1 = 1 
+       	<if test="shop != null and shop != ''">
+       		and shop = #{shop}
+       	</if>
+       	<if test="area != null and area !=''">
+       		and area = #{area}
+       	</if>
+    </select>
+   <select id="findDataByTrackingNumber" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.RemoveOrderActionRecord">
+   		select * from remove_order_action_record where 1 = 1 and tracking_number = #{trackingNumber}
+   		<if test="shop != null and shop != ''">
+       		and shop = #{shop}
+       	</if>
+       	<if test="area != null and area !=''">
+       		and area = #{area}
+       	</if>
+   </select> 
+      <select id="findDataByFnsku" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.RemoveOrderActionRecord">
+   		select * from remove_order_action_record where 1 = 1 and fnsku = #{fnsku}
+   		<if test="shop != null and shop != ''">
+       		and shop = #{shop}
+       	</if>
+       	<if test="area != null and area !=''">
+       		and area = #{area}
+       	</if>
+       	
+       	order by date desc limit 0,1
+   </select> 
+   <update id="updateByTableContent" parameterType="com.weiziplus.springboot.models.UsDongcangReceivesRemovalOrderProcessingData">
+ 		UPDATE US_Dongcang_receives_removal_order_processing_data
+ 		<trim prefix="set" suffixOverrides=",">
+  			<if test="actualNumberReceipts!=null">
+  				actual_number_receipts=#{actualNumberReceipts},
+  			</if>
+  			<if test="placeBoxNumber!=null">
+  				place_box_number=#{placeBoxNumber},
+  			</if>
+  			<if test="receiveTime!=null">
+  				receive_time = #{receiveTime},
+  			</if>
+  				box_status = #{boxStatus},
+  				shipmentID = #{shipmentid},
+  			
+		</trim>
+ 				WHERE id=#{id}
+   </update>
+   
+   
+     <select id="findDataByPlaceBoxNumber" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.OverseasWarehousePlanInformationRegistration">
+   		select * from overseas_warehouse_plan_information_registration where 1 = 1 and place_box_number = #{placeBoxNumber}
+   		limit 0,1
+   </select> 
+   
+     <select id="findFnsku" parameterType="java.util.Map" resultType="com.weiziplus.springboot.models.Msku">
+   		select * from msku where 1 = 1 and msku = #{msku}
+   		<if test="shop != null and shop != ''">
+       		and shopsName = #{shop}
+       	</if>
+       	<if test="area != null and area !=''">
+       		and amazonsite = #{area}
+       	</if>
+   		order by groundingTime desc limit 0,1
+   </select> 
+   
+   
+   
+</mapper>

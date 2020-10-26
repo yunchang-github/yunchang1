@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.UsXicangCaseNumberLogisticsProgressMapper">
+    <select id="getOneInfoByCaseNumber"
+            resultType="com.weiziplus.springboot.models.UsXicangCaseNumberLogisticsProgress">
+        SELECT *
+        FROM us_xicang_case_number_logistics_progress
+        WHERE case_number = #{number}
+        LIMIT 1
+    </select>
+</mapper>

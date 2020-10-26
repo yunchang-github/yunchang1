@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.shop.AreaMapper">
+    <select id="getList" resultType="com.weiziplus.springboot.models.Area">
+        SELECT *
+        FROM area
+        <where>
+            <if test="null != name and '' != name">
+                POSITION(#{name} IN area_name)
+            </if>
+        </where>
+    </select>
+    <select id="getOneInfoByName" resultType="com.weiziplus.springboot.models.Area">
+        SELECT *
+        FROM area
+        WHERE area_name = #{name}
+        LIMIT 1
+    </select>
+    <select id="getOneInfoByMarketplaceId" resultType="com.weiziplus.springboot.models.Area">
+        SELECT *
+        FROM area
+        WHERE marketplace_id = #{marketplaceId}
+        LIMIT 1
+    </select>
+    <select id="getAreaByCountryCode" resultType="com.weiziplus.springboot.models.Area">
+        select id,area_name,advert_country_code,mws_end_point,marketplace_id,area_url,region_code from area where advert_country_code=#{countryCode}
+    </select>
+    <select id="getOneInfoByAreaId" resultType="com.weiziplus.springboot.models.Area">
+        SELECT id,area_name,advert_country_code,mws_end_point,marketplace_id,area_url,region_code
+        FROM area
+        WHERE id = #{areaId}
+        LIMIT 1
+    </select>
+
+    <select id="getMwsCountryCodeByAreaUrl" resultType="java.lang.String">
+        SELECT advert_country_code
+        FROM area
+        WHERE area_url = #{areaUrl}
+        LIMIT 1
+    </select>
+
+    <select id="getAreaByMWSCountryCode" resultType="com.weiziplus.springboot.models.Area">
+        select *
+        from area
+        where mws_country_code = #{mwsCountryCode}
+    </select>
+
+    <select id="getAreaByAdvertCountryCode" resultType="com.weiziplus.springboot.models.Area">
+        select *
+        from area
+        where advert_country_code = #{advertCountryCode}
+    </select>
+</mapper>

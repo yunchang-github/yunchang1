@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.scheduled.LongTermStorageFeeChargesMapper">
+    <select id="getLatestDay" resultType="java.lang.String">
+        SELECT MAX(snapshot_date) AS snapshotDate
+        FROM long_term_storage_fee_charges
+        where 1 = 1
+        <if test="shop != null and shop != ''">
+            and shop =#{shop}
+        </if>
+        <if test="area != null and area != ''">
+            and area = #{area}
+        </if>
+    </select>
+</mapper>

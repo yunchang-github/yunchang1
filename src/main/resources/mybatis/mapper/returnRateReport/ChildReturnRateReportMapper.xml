@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.returnRateReport.ChildReturnRateReportMapper">
+    <select id="getChildPageList" parameterType="java.util.Map" resultType="java.util.Map">
+    	SELECT
+			f.sku,
+			f.`totalSales`,
+			f.`refundAmount`,
+			( f.`totalSales` - f.`refundAmount` ) AS 'netSales',
+			f.`returnMerchandise`,
+			( f.`refundAmount` / f.`totalSales` ) AS 'returnRate',
+			f.`returnsAvailableSale`,
+			( f.`numberDamagedGoods` + f.`buyersDamagedGoods` + f.`carrierDamageQuantity` + f.`defectiveStatusReturnQuantity` ) AS 'returnedProductDamage',
+			f.`numberDamagedGoods`,
+			f.`buyersDamagedGoods`,
+			f.`carrierDamageQuantity`,
+			f.`defectiveStatusReturnQuantity`,
+			( ( f.`numberDamagedGoods` + f.`buyersDamagedGoods` + f.`carrierDamageQuantity` + f.`defectiveStatusReturnQuantity` ) / f.totalSales ) AS 'lossRate',
+			f.`styleReasonReturnQuantity`,
+			f.`sizeSmallReturn`,
+			f.`sizeBigReturn`,
+			( f.`styleReasonReturnQuantity` / f.`returnMerchandise` ) AS 'styleProblemReturnRatio',
+			( f.`sizeSmallReturn` / f.`returnMerchandise` ) AS 'sizeSmallProportionReturns',
+			( f.`sizeBigReturn` / f.`returnMerchandise` ) AS 'sizeLargeProportionReturns',
+			f.psku,f.shop,f.area
+		FROM
+			(
+		SELECT
+			a.sku,
+			a.shop,
+			a.area,
+			(
+		SELECT COALESCE
+			( sum( quantity ), 0 )
+		FROM
+			v_all_order_return_rate
+		WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+				AND item_price >= 5
+				AND order_status IN ( 'Shipped', 'Pending' )
+
+
+
+			) AS 'totalSales',
+			(
+			SELECT COALESCE
+				( sum( refund ), 0 ) - COALESCE ( sum( repeat_calculation_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+			) AS 'refundAmount',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area= a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+			) AS 'returnMerchandise',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+					AND product_attribute = 'SELLABLE'
+
+
+			) AS 'returnsAvailableSale',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+					AND product_attribute = 'DAMAGED'
+
+
+			) AS 'numberDamagedGoods',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop
+				and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+				AND product_attribute IN ( "CUSTOMER_DAMAGED", "CUSTOMERDAMAGED", "CUSTOMER DAMAGED" )
+
+			) AS 'buyersDamagedGoods',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+				AND product_attribute IN ( "CUSTOMER_DAMAGED", "CUSTOMER DAMAGED" )
+
+
+
+			) AS 'carrierDamageQuantity',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				sku = a.sku
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+				AND product_attribute = "DEFECTIVE"
+
+
+
+			) AS 'defectiveStatusReturnQuantity',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+				AND return_reason_grouping = "款式问题"
+
+
+			) AS 'styleReasonReturnQuantity',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+				and shop = a.shop and area = a.area
+
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+				AND return_reason_grouping = "尺码太小"
+
+			) AS 'sizeSmallReturn',
+			(
+			SELECT COALESCE
+				( sum( refund_fba ), 0 )
+			FROM
+				v_all_order_return_rate
+			WHERE
+				`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+				and shop = a.shop and area = a.area
+				and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+		AND return_reason_grouping = "尺码太大"
+
+
+			) AS 'sizeBigReturn',
+			( SELECT parent_sku FROM msku_parentsku_childrenasin_parentasin WHERE msku = a.sku and shop = a.shop and area = a.area ORDER BY id DESC LIMIT 0, 1 ) AS psku
+		FROM
+			`v_all_order_return_rate` a
+		WHERE
+			a.sku IS NOT NULL
+
+			<if test="shop != null and shop != ''">
+					and a.shop in
+				<foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+					#{shop}
+				</foreach>
+			</if>
+			<if test="area != null and area != ''">
+					and a.area in
+				<foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+					#{area}
+				</foreach>
+			</if>
+			and a.purchase_date BETWEEN #{firstDate} and #{lastDate}
+		GROUP BY
+			a.sku,a.shop,a.area
+		) f
+		where 1 = 1
+		<if test="sku != null and sku != ''">
+			and f.sku = #{sku}
+		</if>
+		<if test="parentSku != null and parentSku != ''">
+			and f.psku = #{parentSku}
+		</if>
+    	</select>
+
+	<select id="getParentPageList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT
+		f.sku,
+		f.`totalSales`,
+		f.`refundAmount`,
+		( f.`totalSales` - f.`refundAmount` ) AS 'netSales',
+		f.`returnMerchandise`,
+		( f.`refundAmount` / f.`totalSales` ) AS 'returnRate',
+		f.`returnsAvailableSale`,
+		( f.`numberDamagedGoods` + f.`buyersDamagedGoods` + f.`carrierDamageQuantity` + f.`defectiveStatusReturnQuantity` ) AS 'returnedProductDamage',
+		f.`numberDamagedGoods`,
+		f.`buyersDamagedGoods`,
+		f.`carrierDamageQuantity`,
+		f.`defectiveStatusReturnQuantity`,
+		( ( f.`numberDamagedGoods` + f.`buyersDamagedGoods` + f.`carrierDamageQuantity` + f.`defectiveStatusReturnQuantity` ) / f.totalSales ) AS 'lossRate',
+		f.`styleReasonReturnQuantity`,
+		f.`sizeSmallReturn`,
+		f.`sizeBigReturn`,
+		( f.`styleReasonReturnQuantity` / f.`returnMerchandise` ) AS 'styleProblemReturnRatio',
+		( f.`sizeSmallReturn` / f.`returnMerchandise` ) AS 'sizeSmallProportionReturns',
+		( f.`sizeBigReturn` / f.`returnMerchandise` ) AS 'sizeLargeProportionReturns',
+		f.psku,f.shop,f.area
+		FROM
+		(
+		SELECT
+		a.sku,
+		a.shop,
+		a.area,
+		(
+		SELECT COALESCE
+		( sum( quantity ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND item_price >= 5
+		AND order_status IN ( 'Shipped', 'Pending' )
+
+
+
+		) AS 'totalSales',
+		(
+		SELECT COALESCE
+		( sum( refund ), 0 ) - COALESCE ( sum( repeat_calculation_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+		) AS 'refundAmount',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area= a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		) AS 'returnMerchandise',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND product_attribute = 'SELLABLE'
+
+
+		) AS 'returnsAvailableSale',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND product_attribute = 'DAMAGED'
+
+
+		) AS 'numberDamagedGoods',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop
+		and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND product_attribute IN ( "CUSTOMER_DAMAGED", "CUSTOMERDAMAGED", "CUSTOMER DAMAGED" )
+
+		) AS 'buyersDamagedGoods',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND product_attribute IN ( "CUSTOMER_DAMAGED", "CUSTOMER DAMAGED" )
+
+
+
+		) AS 'carrierDamageQuantity',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 ) - COALESCE ( sum( repeat_calculation_fba_refund ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		sku = a.sku
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND product_attribute = "DEFECTIVE"
+
+
+
+		) AS 'defectiveStatusReturnQuantity',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+		AND return_reason_grouping = "款式问题"
+
+
+		) AS 'styleReasonReturnQuantity',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+		and shop = a.shop and area = a.area
+
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+		AND return_reason_grouping = "尺码太小"
+
+		) AS 'sizeSmallReturn',
+		(
+		SELECT COALESCE
+		( sum( refund_fba ), 0 )
+		FROM
+		v_all_order_return_rate
+		WHERE
+		`id_sku` = concat( a.`amazon_order_id`, <![CDATA['&']]>, a.`sku` )
+		and shop = a.shop and area = a.area
+		and purchase_date BETWEEN #{firstDate} and #{lastDate}
+
+		AND return_reason_grouping = "尺码太大"
+
+
+		) AS 'sizeBigReturn',
+		( SELECT parent_sku FROM msku_parentsku_childrenasin_parentasin WHERE msku = a.sku and shop = a.shop and area = a.area ORDER BY id DESC LIMIT 0, 1 ) AS psku
+		FROM
+		`v_all_order_return_rate` a
+		WHERE
+		a.sku IS NOT NULL
+
+		<if test="shop != null and shop != ''">
+			and a.shop in
+			<foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+				#{shop}
+			</foreach>
+		</if>
+		<if test="area != null and area != ''">
+			and a.area in
+			<foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+				#{area}
+			</foreach>
+		</if>
+		and a.purchase_date BETWEEN #{firstDate} and #{lastDate}
+		GROUP BY
+		a.sku,a.shop,a.area
+		) f
+		where 1 = 1
+		<if test="sku != null and sku != ''">
+			and f.sku = #{sku}
+		</if>
+		<if test="parentSku != null and parentSku != ''">
+			and f.psku = #{parentSku}
+		</if>
+	</select>
+
+
+
+</mapper>

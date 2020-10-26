@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.GoodsCorrespondenceLogisticsInfoMapper">
+    <select id="getOneInfoByCaseNumber"
+            resultType="com.weiziplus.springboot.models.GoodsCorrespondenceLogisticsInfo">
+        SELECT *
+        FROM goods_correspondence_logistics_info
+        WHERE case_number = #{number}
+        LIMIT 1
+    </select>
+    <select id="getList"
+            resultType="com.weiziplus.springboot.models.GoodsCorrespondenceLogisticsInfo">
+        SELECT *
+        FROM goods_correspondence_logistics_info
+        where 1 = 1
+            <if test="null != date and '' != date">
+                and date = #{date}
+            </if>
+            <if test="null != shipmentId and '' != shipmentId">
+                AND shipment_id = #{shipmentId}
+            </if>
+            <if test="null != logisticsNumber and '' != logisticsNumber">
+                AND logistics_number = #{logisticsNumber}
+            </if>
+            <if test="null != estimatedDeliveryTime and '' != estimatedDeliveryTime">
+                AND estimated_delivery_time = #{estimatedDeliveryTime}
+            </if>
+            <if test="null != actualDepartureTime and '' != actualDepartureTime">
+                AND actual_departure_time = #{actualDepartureTime}
+            </if>
+            <if test="null != predictedDetectionTime and '' != predictedDetectionTime">
+                AND predicted_detection_time = #{predictedDetectionTime}
+            </if>
+            <if test="shop != null and shop != ''">
+                and shop in
+                <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+                    #{shop}
+                </foreach>
+            </if>
+            <if test="area != null and area != ''">
+                and area in
+                <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+                    #{area}
+                </foreach>
+            </if>
+
+        ORDER BY id
+    </select>
+</mapper>

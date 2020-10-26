@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.data.manualimport.RebuildingShipmentMapper">
+    <select id="getPageList" resultType="com.weiziplus.springboot.models.RebuildingShipment">
+        select * from rebuilding_shipment where 1 = 1
+        <if test="newShipmentId != null and newShipmentId != ''">
+            and new_shipment_id = #{newShipmentId}
+        </if>
+        <if test="replaceShipmentId != null and replaceShipmentId != ''">
+            and replace_shipment_id = #{replaceShipmentId}
+        </if>
+    </select>
+    <select id="getOneInfoNewShipmentId"
+            resultType="com.weiziplus.springboot.models.RebuildingShipment">
+        SELECT *
+        FROM rebuilding_shipment
+        WHERE new_shipment_id = #{newId}
+        LIMIT 1
+    </select>
+</mapper>

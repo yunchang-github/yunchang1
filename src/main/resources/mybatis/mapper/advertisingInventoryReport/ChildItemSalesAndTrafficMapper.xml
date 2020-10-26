@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.weiziplus.springboot.mapper.advertisingInventoryReport.ChildItemSalesAndTrafficMapper">
+
+
+    <select id="getChildItemSalesAndTrafficAsin" parameterType="java.util.Map" resultType="String">
+  				<!-- purchase-date,sales-channel,item-status,quantity,item-price -->
+  				select distinct contact(asin,'@',sku) from all_order
+  				where 1 = 1 and asin is not null and purchase_date between #{startFourWeekStr} and #{date}
+  				<if test="shop != null and shop != ''">
+  					and shop = #{shop}
+  				</if>
+  				<if test="area != null and area != ''">
+  					and area = #{area}
+  				</if>
+    </select>
+
+    <select id="getChildItemSalesAndTrafficFromFcTransfersAsin" parameterType="java.util.Map" resultType="String">
+				SELECT distinct asin
+				FROM reserved_inventory
+			    WHERE reserved_fc_transfers >0 and asin is not null
+  				<if test="shop != null and shop != ''">
+  					and shop = #{shop}
+  				</if>
+  				<if test="area != null and area != ''">
+  					and area = #{area}
+  				</if>
+    </select>
+
+    <select id="getChildItemSalesAndTrafficFromManageFbaInventory" parameterType="java.util.Map" resultType="String">
+				SELECT
+				 DISTINCT asin
+				FROM
+					manage_fba_inventory
+				WHERE
+					asin IS NOT NULL
+					and ( afn_fulfillable_quantity > 0 OR afn_unsellable_quantity > 0 OR afn_inbound_shipped_quantity > 0 OR afn_inbound_receiving_quantity > 0 )
+  				<if test="shop != null and shop != ''">
+  					and shop = #{shop}
+  				</if>
+  				<if test="area != null and area != ''">
+  					and area = #{area}
+  				</if>
+    </select>
+
+<!--     <select id="getMskuParentskuChildrenasinParentasinByMsku"  resultType="String">
+    		select parent_sku from msku_parentsku_childrenasin_parentasin where msku = #{msku}
+    		<if test="shop != null and shop != ''">
+    				and shop = #{shop}
+    		</if>
+    		<if test="area != null and area != ''">
+    				and area = #{area}
+    		</if>
+    </select> -->
+
+
+    <select id="getChildItemSalesVolume" parameterType="java.util.Map" resultType="Integer">
+
+    		SELECT
+				COALESCE(sum(quantity),0)
+			FROM
+				all_order
+			WHERE
+				item_price >= 5
+				and (item_status = 'Shipped' or item_status = 'Shipping' )
+				and asin = #{param.asin}
+				and purchase_date between #{param.startTime} and #{param.endTime}
+
+	    		<if test="param.shop != null and param.shop != ''">
+	    			and shop = #{param.shop}
+	    		</if>
+	    		<if test="param.area != null and param.area != ''">
+	    			and area = #{param.area}
+	    		</if>
+    </select>
+
+    <select id="getChildItemSalesVolumeUnitPrice" parameterType="java.util.Map" resultType="Double">
+
+    		SELECT
+				COALESCE(sum(item_price),0)
+			FROM
+				all_order
+			WHERE
+				item_price >= 5
+				and (item_status = 'Shipped' or item_status = 'Shipping' )
+				and asin = #{param.asin}
+				and purchase_date between #{param.startTime} and #{param.endTime}
+
+	    		<if test="param.shop != null and param.shop != ''">
+	    			and shop = #{param.shop}
+	    		</if>
+	    		<if test="param.area != null and param.area != ''">
+	    			and area = #{param.area}
+	    		</if>
+    </select>
+
+
+        <select id="getChildItemPageViews" parameterType="java.util.Map" resultType="Integer">
+
+    		SELECT
+				COALESCE(sum(page_views),0)
+			FROM
+				detail_page_sales_and_traffic_by_child_item
+			WHERE
+				casin = #{param.asin}
+				and date between #{param.startTime} and #{param.endTime}
+
+	    		<if test="param.shop != null and param.shop != ''">
+	    			and shop = #{param.shop}
+	    		</if>
+	    		<if test="param.area != null and param.area != ''">
+	    			and area = #{param.area}
+	    		</if>
+    </select>
+
+      <select id="getAsinFromThreeRecource" resultType="java.util.Map">
+    		select a.asin,a.sku,b.parent_sku,a.shop,a.area from (SELECT
+				asin,sku,shop,area
+ 			FROM
+				all_order
+			WHERE
+				1 = 1
+				AND asin IS NOT NULL
+
+ 				AND purchase_date BETWEEN #{startFourWeekStr} and #{date}
+				  <if test="shop != null and shop != ''">
+					  and shop in
+					  <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+						  #{shop}
+					  </foreach>
+				  </if>
+				  <if test="area != null and area != ''">
+					  and area in
+					  <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+						  #{area}
+					  </foreach>
+				  </if>
+
+				group by asin,shop,area
+				 UNION
+			SELECT
+				asin,sku,shop,area
+			FROM
+				reserved_inventory
+			WHERE
+				reserved_fc_transfers > 0
+				AND asin IS NOT NULL
+				  <if test="shop != null and shop != ''">
+					  and shop in
+					  <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+						  #{shop}
+					  </foreach>
+				  </if>
+				  <if test="area != null and area != ''">
+					  and area in
+					  <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+						  #{area}
+					  </foreach>
+				  </if>
+			group by asin,shop,area
+			UNION
+			SELECT
+				asin,sku,shop,area
+			FROM
+				manage_fba_inventory
+			WHERE
+				asin IS NOT NULL
+				AND (afn_fulfillable_quantity > 0 OR afn_unsellable_quantity > 0 OR afn_inbound_shipped_quantity > 0 OR afn_inbound_receiving_quantity > 0 )
+		  <if test="shop != null and shop != ''">
+			  and shop in
+			  <foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+				  #{shop}
+			  </foreach>
+		  </if>
+		  <if test="area != null and area != ''">
+			  and area in
+			  <foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+				  #{area}
+			  </foreach>
+		  </if>
+			group by asin,shop,area) a left join msku_parentsku_childrenasin_parentasin b on b.msku = a.sku
+		  where 1 = 1
+		  <if test="asin != null and asin != ''">
+			  and a.asin = #{asin}
+		  </if>
+		  <if test="parentSku != null and parentSku != ''">
+			  and b.parent_sku =#{parentSku}
+		  </if>
+		  <if test="sku != null and sku != ''">
+			  and a.sku = #{sku}
+		  </if>
+
+    </select>
+
+    <select id="getAsinFromThreeRecourceFromParentSku" parameterType="java.util.Map" resultType="java.util.Map">
+
+    	select d.parent_sku,d.shop,d.area ,group_concat(distinct c.asin) as asin from msku_parentsku_childrenasin_parentasin d  left join   (select a.asin,a.sku,a.shop,a.area,b.parent_sku from (SELECT
+			asin,sku,shop,area
+ 			FROM
+				all_order
+			WHERE
+				1 = 1
+				AND asin IS NOT NULL
+
+ 				AND purchase_date BETWEEN #{startFourWeekStr} and #{date}
+ 				<if test = "shop != null and shop != ''" >
+ 				AND shop in
+					<foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+						#{shop}
+					</foreach>
+ 				</if>
+ 				<if test = "area != null and area != ''" >
+ 				AND area in
+					<foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+						#{area}
+					</foreach>
+ 				</if>
+				group by asin,shop,area
+				 UNION
+			SELECT
+				asin,sku,shop,area
+			FROM
+				reserved_inventory
+			WHERE
+				reserved_fc_transfers > 0
+				AND asin IS NOT NULL
+				<if test = "shop != null and shop != ''" >
+					AND shop in
+					<foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+						#{shop}
+					</foreach>
+				</if>
+				<if test = "area != null and area != ''" >
+					AND area in
+					<foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+						#{area}
+					</foreach>
+				</if>
+				group by asin,shop,area
+			UNION
+			SELECT
+				asin,sku,shop,area
+			FROM
+				manage_fba_inventory
+			WHERE
+				asin IS NOT NULL
+				AND (afn_fulfillable_quantity > 0 OR afn_unsellable_quantity > 0 OR afn_inbound_shipped_quantity > 0 OR afn_inbound_receiving_quantity > 0 )
+				<if test = "shop != null and shop != ''" >
+					AND shop in
+					<foreach collection="shopArray" item="shop" index="index" open="(" close=")" separator=",">
+						#{shop}
+					</foreach>
+				</if>
+				<if test = "area != null and area != ''" >
+					AND area in
+					<foreach collection="areaArray" item="area" index="index" open="(" close=")" separator=",">
+						#{area}
+					</foreach>
+				</if>
+				group by asin,shop,area) a left join msku_parentsku_childrenasin_parentasin b on b.msku = a.sku) c on c.parent_sku = d.parent_sku and c.shop = d.shop and c.area = d.area
+				where 1 = 1
+				<if test="parentSku != null and parentSku != ''">
+					and d.parent_sku  = #{parent_sku}
+				</if>
+		group by d.parent_sku,d.shop,d.area
+
+    </select>
+
+
+
+
+
+
+
+</mapper>

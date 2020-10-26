@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiziplus.springboot.mapper.caravan.AccountDataMapper">
+    <select id="getOneInfoByAccountIdAndOrderIdAndModifyTime"
+            resultType="com.weiziplus.springboot.models.AccountData">
+        SELECT *
+        FROM account_data
+        WHERE accountId = #{accountId} AND orderId = #{orderId}
+        <choose>
+            <when test="null != modifyTime">
+                AND modifyTime = #{modifyTime}
+            </when>
+            <otherwise>
+                AND modifyTime IS NULL
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+</mapper>
